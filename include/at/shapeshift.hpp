@@ -1,0 +1,173 @@
+/* Copyright 2017 Paolo Galeone <nessuno@nerdz.eu>. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.*/
+
+#ifndef AUTOT_SHAPESHIFT_H_
+#define AUTOT_SHAPESHIFT_H_
+
+#include <at/exceptions.hpp>
+#include <at/market.hpp>
+#include <at/types.hpp>
+
+namespace at {
+
+typedef struct {
+    std::string inputTXID, inputAddress, inputCurrency;
+    double inputAmount;
+    std::string outputTXID, outputAddress, outputCurrency, outputAmount,
+        shiftRate, status;
+} shapeshift_tx_t;
+
+inline void to_json(json& j, const shapeshift_tx_t& t)
+{
+    j = json{{"inputTXID", t.inputTXID},
+             {"inputAddress", t.inputAddress},
+             {"inputCurrency", t.inputCurrency},
+             {"inputAmount", t.inputAmount},
+             {"outputTXID", t.outputTXID},
+             {"outputAddress", t.outputAddress},
+             {"outputCurrency", t.outputCurrency},
+             {"outputAmount", t.outputAmount},
+             {"status", t.status}};
+}
+
+inline void from_json(const json& j, shapeshift_tx_t& t)
+{
+    t.inputTXID = j["inputTXID"].get<std::string>();
+    t.inputAddress = j["inputAddress"].get<std::string>();
+    t.inputCurrency = j["inputCurrency"].get<std::string>();
+    t.inputAmount = j["inputAmount"].get<double>();
+
+    t.outputAmount = j["outputTXID"].get<std::string>();
+    t.outputAmount = j["outputAddress"].get<std::string>();
+    t.outputAmount = j["outputCurrency"].get<std::string>();
+    t.outputAmount = j["outputAmount"].get<std::string>();
+
+    t.shiftRate = j["shiftRate"].get<std::string>();
+    t.status = j["status"].get<std::string>();
+}
+
+/* Client for ShapeShift API.
+ * API doumentation available: https://info.shapeshift.io/api
+ * Method descriptions are kept from that page.
+ *
+ * Every method can throw a response_error or a server_error.
+ * A response_error is when the API handles the request but for some reason
+ * an error occuurs.
+ *
+ * A server_error is when the status code of the request is != 200.
+ * */
+class Shapeshift : public Market {
+private:
+    const std::string _host = "https://shapeshift.io/";
+    const std::string _affiliate_private_key;
+    static void _throw_error_if_any(json res)
+    {
+        const auto e = res.find("error");
+        if (e != res.end()) {
+            throw response_error((*e).get<std::string>());
+        }
+    }
+
+public:
+    Shapeshift() {}
+    Shapeshift(std::string affiliate_private_key)
+        : _affiliate_private_key(affiliate_private_key)
+    {
+    }
+    ~Shapeshift() {}
+
+    /* Gets the current rate offered by Shapeshift. This is an estimate because
+     * the rate can occasionally change rapidly depending on the markets. The
+     * rate is also a 'use-able' rate not a direct market rate. Meaning
+     * multiplying your input coin amount times the rate should give you a close
+     * approximation of what will be sent out. This rate does not include the
+     * transaction (miner) fee taken off every transaction.*/
+    double rate(currency_pair_t) override;
+
+    /* Gets the current deposit limit set by Shapeshift. Amounts deposited over
+     * this limit will be sent to the return address if one was entered,
+     * otherwise the user will need to contact ShapeShift support to retrieve
+     * their coins. This is an estimate because a sudden market swing could move
+     * the limit.*/
+    deposit_limit_t depositLimit(currency_pair_t) override;
+
+    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)*/
+    std::vector<market_info_t> info() override;
+
+    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)
+     * for the spcified pair*/
+    market_info_t info(currency_pair_t) override;
+
+    /* Get a list of the most recent transactions.
+     * max is the maximum number of transactions to return.
+     * Also, max must be a number between 1 and 50 (inclusive).*/
+    json recentTransaction(uint32_t) override;
+
+    /* This returns the status of the most recent deposit transaction to the
+     * address.*/
+    json depositStatus(address_t) override;
+
+    /* When a transaction is created with a fixed amount requested there is a 10
+     * minute window for the deposit. After the 10 minute window if the deposit
+     * has not been received the transaction expires and a new one must be
+     * created. This api call returns how many seconds are left before the
+     * transaction expires. Please note that if the address is a ripple address,
+     * it will include the "?dt=destTagNUM" appended on the end, and you will
+     * need to use the URIEncodeComponent() function on the address before
+     * sending it in as a param, to get a successful response.*/
+    std::pair<std::string, uint32_t> timeRemeaningForTransaction(
+        address_t) override;
+
+    /* Allows anyone to get a list of all the currencies that Shapeshift
+     * currently supports at any given time. The list will include the name,
+     * symbol, availability status, and an icon link for each.*/
+    std::map<std::string, coin_t> coins() override;
+
+    /* Allows vendors to get a list of all transactions that have ever been done
+     * using a specific API key. Transactions are created with an affilliate
+     * PUBLIC KEY, but they are looked up using the linked PRIVATE KEY, to
+     * protect the privacy of our affiliates' account details.*/
+    std::vector<shapeshift_tx_t> transactionsList();
+
+    /* Allows vendors to get a list of all transactions that have ever been sent
+     * to one of their addresses. The affilliate's PRIVATE KEY must be provided,
+     * and will only return transactions that were sent to output address AND
+     * were created using / linked to the affiliate's PUBLIC KEY. Please note
+     * that if the address is a ripple address and it includes the
+     * "?dt=destTagNUM" appended on the end, you will need to use the
+     * URIEncodeComponent() function on the address before sending it in as a
+     * param, to get a successful response.*/
+    std::vector<shapeshift_tx_t> transactionsList(address_t);
+
+    /* This is the primary data input into ShapeShift.
+     * Use only certain fields of the data required by the API (no optional
+     fields for XRP
+     * or optional fields for NXT).
+     * If the object was instantiate with an API Key, the API key is sent in the
+     * body request.
+     * Returns the address in which deposit the [input_coin] amount to convert
+     * into [output_coin]
+     *
+     * pair = what coins are being exchanged
+     * returnAddress = [input_coin address] address to return deposit to if
+     anything goes wrong with exchange
+     * withdrawal = [output_coin address] the address for resulting coin to be
+     sent to*/
+    address_t shift(currency_pair_t, address_t return_addr,
+                    address_t withdrawal_addr);
+};
+
+}  // end namespace at
+
+#endif  // AUTOT_SHAPESHIFT_H_
