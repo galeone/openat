@@ -71,13 +71,17 @@ class Shapeshift : public Market {
 private:
     const std::string _host = "https://shapeshift.io/";
     const std::string _affiliate_private_key;
-    static void _throw_error_if_any(json res)
+    static void _throw_error_if_any(const json& res)
     {
         const auto e = res.find("error");
         if (e != res.end()) {
             throw response_error((*e).get<std::string>());
         }
     }
+
+    std::map<std::string, std::string> _shift_params(currency_pair_t pair,
+                                                     hash_t return_addr,
+                                                     hash_t withdrawal_addr);
 
 public:
     Shapeshift() {}
@@ -92,31 +96,32 @@ public:
      * rate is also a 'use-able' rate not a direct market rate. Meaning
      * multiplying your input coin amount times the rate should give you a close
      * approximation of what will be sent out. This rate does not include the
-     * transaction (miner) fee taken off every transaction.*/
+     * transaction (miner) fee taken off every transaction. */
     double rate(currency_pair_t) override;
 
     /* Gets the current deposit limit set by Shapeshift. Amounts deposited over
      * this limit will be sent to the return address if one was entered,
      * otherwise the user will need to contact ShapeShift support to retrieve
      * their coins. This is an estimate because a sudden market swing could move
-     * the limit.*/
+     * the limit. */
     deposit_limit_t depositLimit(currency_pair_t) override;
 
-    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)*/
+    /* This gets the market info (pair, rate, limit, minimum limit, miner fee).
+     */
     std::vector<market_info_t> info() override;
 
     /* This gets the market info (pair, rate, limit, minimum limit, miner fee)
-     * for the spcified pair*/
+     * for the spcified pair. */
     market_info_t info(currency_pair_t) override;
 
     /* Get a list of the most recent transactions.
      * max is the maximum number of transactions to return.
-     * Also, max must be a number between 1 and 50 (inclusive).*/
+     * Also, max must be a number between 1 and 50 (inclusive). */
     json recentTransaction(uint32_t) override;
 
     /* This returns the status of the most recent deposit transaction to the
-     * address.*/
-    json depositStatus(address_t) override;
+     * address. */
+    status_t depositStatus(hash_t) override;
 
     /* When a transaction is created with a fixed amount requested there is a 10
      * minute window for the deposit. After the 10 minute window if the deposit
@@ -125,19 +130,20 @@ public:
      * transaction expires. Please note that if the address is a ripple address,
      * it will include the "?dt=destTagNUM" appended on the end, and you will
      * need to use the URIEncodeComponent() function on the address before
-     * sending it in as a param, to get a successful response.*/
-    std::pair<std::string, uint32_t> timeRemeaningForTransaction(
-        address_t) override;
+     * sending it in as a param, to get a successful response.
+     *
+     * hash_t is the deposit address to look up. */
+    std::pair<status_t, uint32_t> timeRemeaningForTransaction(hash_t) override;
 
     /* Allows anyone to get a list of all the currencies that Shapeshift
      * currently supports at any given time. The list will include the name,
-     * symbol, availability status, and an icon link for each.*/
+     * symbol, availability status, and an icon link for each. */
     std::map<std::string, coin_t> coins() override;
 
     /* Allows vendors to get a list of all transactions that have ever been done
      * using a specific API key. Transactions are created with an affilliate
      * PUBLIC KEY, but they are looked up using the linked PRIVATE KEY, to
-     * protect the privacy of our affiliates' account details.*/
+     * protect the privacy of our affiliates' account details. */
     std::vector<shapeshift_tx_t> transactionsList();
 
     /* Allows vendors to get a list of all transactions that have ever been sent
@@ -147,13 +153,14 @@ public:
      * that if the address is a ripple address and it includes the
      * "?dt=destTagNUM" appended on the end, you will need to use the
      * URIEncodeComponent() function on the address before sending it in as a
-     * param, to get a successful response.*/
-    std::vector<shapeshift_tx_t> transactionsList(address_t);
+     * param, to get a successful response.
+     *
+     * hash_t the address that output coin was sent to for the shift. */
+    std::vector<shapeshift_tx_t> transactionsList(hash_t);
 
     /* This is the primary data input into ShapeShift.
      * Use only certain fields of the data required by the API (no optional
-     fields for XRP
-     * or optional fields for NXT).
+     * fields for XRP or optional fields for NXT).
      * If the object was instantiate with an API Key, the API key is sent in the
      * body request.
      * Returns the address in which deposit the [input_coin] amount to convert
@@ -161,11 +168,34 @@ public:
      *
      * pair = what coins are being exchanged
      * returnAddress = [input_coin address] address to return deposit to if
-     anything goes wrong with exchange
+     * anything goes wrong with exchange
      * withdrawal = [output_coin address] the address for resulting coin to be
-     sent to*/
-    address_t shift(currency_pair_t, address_t return_addr,
-                    address_t withdrawal_addr);
+     * sent to. */
+    hash_t shift(currency_pair_t, hash_t return_addr, hash_t withdrawal_addr);
+
+    /* This call allows you to request a fixed amount to be sent to the
+     * withdrawal address. You provide a withdrawal address and the amount you
+     * want sent to it. We return the amount to deposit and the address to
+     * deposit to. This allows you to use shapeshift as a payment mechanism. */
+    hash_t shift(currency_pair_t, hash_t return_addr, hash_t withdrawal_addr,
+                 double amount);
+
+    /* This call requests a receipt for a transaction. The email address will be
+     * added to the conduit associated with that transaction as well. (Soon it
+     * will also send receipts to subsequent transactions on that conduit). */
+    bool sendReceipt(std::string, hash_t);
+
+    /* This call also allows you to request a quoted price on the amount of a
+     * transaction. */
+    json quotedPrice(currency_pair_t, double amount);
+
+    /* This call allows you to request for canceling a pending transaction by
+     * the deposit address. If there is fund sent to the deposit address, this
+     * pending transaction cannot be canceled.
+     *
+     * Throws a response_error if an error occur
+     * */
+    void cancel(hash_t);
 };
 
 }  // end namespace at
