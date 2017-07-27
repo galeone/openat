@@ -16,7 +16,7 @@
 
 namespace at {
 
-bool Market::isValid(std::string symbol, address_t address)
+bool Market::isValid(std::string symbol, hash_t address)
 {
     std::ostringstream stream;
     stream << "https://shapeshift.io/validateAddress/" << address << "/"

@@ -39,13 +39,13 @@ public:
     virtual std::vector<market_info_t> info() = 0;
     virtual market_info_t info(currency_pair_t) = 0;
     virtual json recentTransaction(uint32_t) = 0;
-    virtual json depositStatus(address_t) = 0;
-    virtual std::pair<std::string, uint32_t> timeRemeaningForTransaction(
-        address_t) = 0;
+    virtual status_t depositStatus(hash_t) = 0;
+    virtual std::pair<status_t, uint32_t> timeRemeaningForTransaction(
+        hash_t) = 0;
     virtual std::map<std::string, coin_t> coins() = 0;
 
     // Not pure virtual, implementation exists
-    virtual bool isValid(std::string symbol, address_t address);
+    virtual bool isValid(std::string symbol, hash_t address);
 };
 
 }  // end namespace at

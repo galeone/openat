@@ -29,7 +29,27 @@ using json = nlohmann::json;
 // Functions included in multiple source files must be inline
 // http://en.cppreference.com/w/cpp/language/inline
 
-typedef std::pair<std::string, std::string> currency_pair_t;
+class currency_pair_t {
+private:
+    std::pair<std::string, std::string> _pair;
+
+public:
+    std::string first, second;
+    currency_pair_t(std::string first, std::string second)
+    {
+        _pair = std::pair(first, second);
+        this->first = first;
+        this->second = second;
+    }
+
+    std::string str() const { return first + "_" + second; }
+};
+
+// overload of << between ostream and currency_pair_t
+inline std::ostream& operator<<(std::ostream& o, const currency_pair_t& pair)
+{
+    return o << pair.str();
+}
 
 inline void to_json(json& j, const currency_pair_t c)
 {
@@ -41,9 +61,10 @@ inline void from_json(const json& j, currency_pair_t& c)
     c.second = j[1].get<std::string>();
 }
 
-typedef std::string address_t;
-inline void to_json(json& j, const address_t& a) { j = json::parse(a); }
-inline void from_json(const json& j, address_t& a) { a = j.get<std::string>(); }
+using hash_t = std::string;
+// typedef std::string hash_t;
+inline void to_json(json& j, const hash_t& a) { j = json::parse(a); }
+inline void from_json(const json& j, hash_t& a) { a = j.get<std::string>(); }
 
 typedef struct {
     std::string name, symbol, image, status;
@@ -67,6 +88,7 @@ typedef struct {
     double min;
     double max;
 } deposit_limit_t;
+
 inline void to_json(json& j, const deposit_limit_t& d)
 {
     j = json{{"min", d.min}, {"max", d.max}};
@@ -91,6 +113,33 @@ inline void from_json(const json& j, market_info_t& m)
     m.limit = j["limit"].get<deposit_limit_t>();
     m.rate = j["rate"].get<double>();
     m.miner_fee = j["miner_fee"].get<double>();
+}
+
+enum class status_t : char {
+    no_deposists = 'n',
+    received = 'r',
+    complete = 'c',
+    failed = 'f',
+    pending = 'p',
+    expired = 'e',
+};
+
+inline std::ostream& operator<<(std::ostream& o, const status_t& s)
+{
+    switch (s) {
+        case status_t::no_deposists:
+            return o << "no_deposists";
+        case status_t::received:
+            return o << "received";
+        case status_t::complete:
+            return o << "complete";
+        case status_t::failed:
+            return o << "failed";
+        case status_t::pending:
+            return o << "pending";
+        default:
+            return o << "expired";
+    }
 }
 
 }  // end namespace at
