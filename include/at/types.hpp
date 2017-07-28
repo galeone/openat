@@ -15,19 +15,39 @@
 #ifndef AUTOT_TYPE_H_
 #define AUTOT_TYPE_H_
 
+#include <exception>
 #include <json.hpp>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
 namespace at {
 
-using json = nlohmann::json;
-
-// Handle user defined types & json:
-// https://github.com/nlohmann/json#basic-usage
-//
+// Remember:
 // Functions included in multiple source files must be inline
 // http://en.cppreference.com/w/cpp/language/inline
+//
+// Handle user defined types & json:
+// https://github.com/nlohmann/json#basic-usage
+
+using json = nlohmann::json;
+
+// Returns a std::string if field is a string
+// Otherwise returns the string "0.0"
+// Throws runtime_error otherwise
+inline std::string numeric_string(const json& field)
+{
+    if (field.is_string()) {
+        return field.get<std::string>();
+    }
+    if (field.is_null()) {
+        return std::string("0.0");
+    }
+    std::ostringstream stream;
+    stream << "field " << field << " is not string or null";
+    throw std::runtime_error(stream.str());
+}
 
 class currency_pair_t {
 private:
@@ -57,12 +77,11 @@ inline void to_json(json& j, const currency_pair_t c)
 }
 inline void from_json(const json& j, currency_pair_t& c)
 {
-    c.first = j[0].get<std::string>();
-    c.second = j[1].get<std::string>();
+    c.first = j.at(0).get<std::string>();
+    c.second = j.at(1).get<std::string>();
 }
 
-using hash_t = std::string;
-// typedef std::string hash_t;
+typedef std::string hash_t;
 inline void to_json(json& j, const hash_t& a) { j = json::parse(a); }
 inline void from_json(const json& j, hash_t& a) { a = j.get<std::string>(); }
 
@@ -78,10 +97,10 @@ inline void to_json(json& j, const coin_t& c)
 }
 inline void from_json(const json& j, coin_t& c)
 {
-    c.name = j["name"].get<std::string>();
-    c.symbol = j["symbol"].get<std::string>();
-    c.image = j["image"].get<std::string>();
-    c.status = j["status"].get<std::string>();
+    c.name = j.at("name").get<std::string>();
+    c.symbol = j.at("symbol").get<std::string>();
+    c.image = j.at("image").get<std::string>();
+    c.status = j.at("status").get<std::string>();
 }
 
 typedef struct {
@@ -95,8 +114,8 @@ inline void to_json(json& j, const deposit_limit_t& d)
 }
 inline void from_json(const json& j, deposit_limit_t& d)
 {
-    d.min = j["min"].get<double>();
-    d.max = j["max"].get<double>();
+    d.min = j.at("min").get<double>();
+    d.max = j.at("max").get<double>();
 }
 
 typedef struct {
@@ -110,9 +129,9 @@ inline void to_json(json& j, const market_info_t& m)
 }
 inline void from_json(const json& j, market_info_t& m)
 {
-    m.limit = j["limit"].get<deposit_limit_t>();
-    m.rate = j["rate"].get<double>();
-    m.miner_fee = j["miner_fee"].get<double>();
+    m.limit = j.at("limit").get<deposit_limit_t>();
+    m.rate = j.at("rate").get<double>();
+    m.miner_fee = j.at("miner_fee").get<double>();
 }
 
 enum class status_t : char {

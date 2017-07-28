@@ -15,6 +15,7 @@
 #ifndef AUTOT_EXCEPTIONS_H_
 #define AUTOT_EXCEPTIONS_H_
 
+#include <at/types.hpp>
 #include <exception>
 #include <stdexcept>
 
@@ -29,6 +30,21 @@ class response_error : public std::runtime_error {
 public:
     response_error(std::string message) : runtime_error(message) {}
 };
+
+// Inherit from this class to use the method _throw_error_if_any
+// in order to throw a response_error if the json response contains
+// the "error" key
+class Thrower {
+protected:
+    static void _throw_error_if_any(const json& res)
+    {
+        const auto e = res.find("error");
+        if (e != res.end()) {
+            throw response_error((*e).get<std::string>());
+        }
+    }
+};
+
 }  // end namespace at
 
 #endif  // AUTOT_EXCEPTIONS_H_

@@ -43,18 +43,18 @@ inline void to_json(json& j, const shapeshift_tx_t& t)
 
 inline void from_json(const json& j, shapeshift_tx_t& t)
 {
-    t.inputTXID = j["inputTXID"].get<std::string>();
-    t.inputAddress = j["inputAddress"].get<std::string>();
-    t.inputCurrency = j["inputCurrency"].get<std::string>();
-    t.inputAmount = j["inputAmount"].get<double>();
+    t.inputTXID = j.at("inputTXID").get<std::string>();
+    t.inputAddress = j.at("inputAddress").get<std::string>();
+    t.inputCurrency = j.at("inputCurrency").get<std::string>();
+    t.inputAmount = j.at("inputAmount").get<double>();
 
-    t.outputAmount = j["outputTXID"].get<std::string>();
-    t.outputAmount = j["outputAddress"].get<std::string>();
-    t.outputAmount = j["outputCurrency"].get<std::string>();
-    t.outputAmount = j["outputAmount"].get<std::string>();
+    t.outputAmount = j.at("outputTXID").get<std::string>();
+    t.outputAmount = j.at("outputAddress").get<std::string>();
+    t.outputAmount = j.at("outputCurrency").get<std::string>();
+    t.outputAmount = j.at("outputAmount").get<std::string>();
 
-    t.shiftRate = j["shiftRate"].get<std::string>();
-    t.status = j["status"].get<std::string>();
+    t.shiftRate = j.at("shiftRate").get<std::string>();
+    t.status = j.at("status").get<std::string>();
 }
 
 /* Client for ShapeShift API.
@@ -67,18 +67,10 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
  *
  * A server_error is when the status code of the request is != 200.
  * */
-class Shapeshift : public Market {
+class Shapeshift : public Market, private Thrower {
 private:
     const std::string _host = "https://shapeshift.io/";
     const std::string _affiliate_private_key;
-    static void _throw_error_if_any(const json& res)
-    {
-        const auto e = res.find("error");
-        if (e != res.end()) {
-            throw response_error((*e).get<std::string>());
-        }
-    }
-
     std::map<std::string, std::string> _shift_params(currency_pair_t pair,
                                                      hash_t return_addr,
                                                      hash_t withdrawal_addr);
