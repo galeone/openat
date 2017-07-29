@@ -20,7 +20,11 @@ namespace at {
 
 using namespace curlpp::options;
 
-json Request::get(std::string url)
+std::string Request::getHTML(std::string url) { return _get(url); }
+
+json Request::get(std::string url) { return json::parse(_get(url)); }
+
+std::string Request::_get(std::string url)
 {
     curlpp::Easy req;
 
@@ -35,7 +39,7 @@ json Request::get(std::string url)
 
     long code = curlpp::infos::ResponseCode::get(req);
     if (code == 200L) {
-        return json::parse(stream.str());
+        return stream.str();
     }
 
     stream.str("");

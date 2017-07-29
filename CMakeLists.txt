@@ -12,6 +12,34 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 
 set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp-0.8.1")
 set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
+set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
+set (GUMBOPARSER "${GUMBO}/parser")
+set (GUMBOQUERY "${GUMBO}/query")
+
+
+# Compile curlpp, that uses cmake
+add_subdirectory(${CURLPP})
+
+# Compile gumbo-parser, that uses autogen
+include(ExternalProject)
+ExternalProject_Add(gumbo_parser
+    SOURCE_DIR ${GUMBOPARSER}
+    # Compile gumbo-parser
+    CONFIGURE_COMMAND ${GUMBOPARSER}/autogen.sh COMMAND ./configure --prefix=${GUMBOPARSER}
+    PREFIX ${GUMBOPARSER}
+    BUILD_COMMAND ${MAKE}
+    BUILD_IN_SOURCE 1)
+# The compilation creates the include dir ${GUMBOPARSER}/include
+# and the lib dir ${GUMBOPARSER}/lib
+
+# Compile gumbo-query that users gumbo and cmake
+set (Gumbo_INCLUDE_DIR "${GUMBOPARSER}/include")
+set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
+set (Gumbo_static_LIBRARY "${GUMBOPARSER}/lib/libgumbo.a")
+add_subdirectory(${GUMBOQUERY}) #defines gumbo_query, but not defines a library
+
+#add_library(gumbo_query STATIC IMPORTED)
+#set_target_properties(gumbo_query PROPERTIES IMPORTED_LOCATION ${GUMBOQUERY}/lib/libgq.a)
 
 set (INCLUDES 
   # -I ./include
@@ -20,9 +48,14 @@ set (INCLUDES
   ${JSON}
   # -I ./libs/curpp-0.8-1/include
   ${CURLPP}/include
+  # -I ./libs/gumbo/parser/include
+  ${GUMBOPARSER}/include
+  # -I ./libs/gumbo/ #because gumbo-query is badly structured
+  # Instead of having "File.h" included, I prefer to include the whole strucuture
+  # query/src/File.h
+  ${GUMBO}/
 )
 
-add_subdirectory(${CURLPP})
 include_directories("${INCLUDES}")
 add_subdirectory(src)
 

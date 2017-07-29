@@ -1,0 +1,1 @@
+cmd='/home/pgaleone/at/libs/gumbo-parser//autogen.sh;COMMAND;./configure;--prefix=/home/pgaleone/at/libs/gumbo-parser/'

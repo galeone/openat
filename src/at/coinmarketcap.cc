@@ -50,4 +50,70 @@ gm_data_t CoinMarketCap::global()
     return res;
 }
 
+std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_name)
+{
+    Request req;
+    std::string page =
+        req.getHTML(_reverse_host + "currencies/" + currency_name);
+
+    CDocument doc;
+    doc.parse(page.c_str());
+    CSelection table = doc.find("#markets-table tbody");
+    if (table.nodeNum() == 0) {
+        throw std::runtime_error(
+            "Unable to find table with ID markets-table, on " + _host +
+            "currencies/" + currency_name);
+    }
+
+    std::vector<cm_market_t> ret;
+    CSelection rows = table.nodeAt(0).find("tr");
+    for (size_t i = 0; i < rows.nodeNum(); ++i) {
+        CNode row = rows.nodeAt(i);
+        CSelection fields = row.find("td");
+        if (fields.nodeNum() != 7) {
+            throw std::runtime_error("Expected 6 columns, got " +
+                                     std::to_string(fields.nodeNum()));
+        }
+        // 0: rank, unused because we insert in the return vector following this
+        // order
+        // 1: <a link>name</a>
+        std::string name = fields.nodeAt(1).find("a").nodeAt(0).text();
+        // 2: <a link>cur1/cur2</a>
+        std::string pair_string = fields.nodeAt(2).find("a").nodeAt(0).text();
+        auto split_pos = pair_string.find("/");
+        auto first = pair_string.substr(0, split_pos);
+        auto second = pair_string.substr(split_pos + 1, pair_string.length());
+
+        // 3: volumes <span data-usd="value", data-btc="value">
+        CNode span = fields.nodeAt(3).find("span").nodeAt(0);
+        unsigned long long int day_volume_usd =
+            std::stoull(span.attribute("data-usd"));
+        double day_volume_btc = std::stod(span.attribute("data-btc"));
+
+        // 4: prices <span data-usd, data-btc
+        span = fields.nodeAt(4).find("span").nodeAt(0);
+        double price_usd = std::stod(span.attribute("data-usd"));
+        double price_btc = std::stod(span.attribute("data-btc"));
+
+        // 5: xx.yy% percentage
+        std::string percentage_string = fields.nodeAt(5).text();
+        // remove %
+        percentage_string.pop_back();
+        float percent_volume = std::stof(percentage_string);
+
+        cm_market_t market{
+            .name = name,
+            .pair = currency_pair_t(first, second),
+            .day_volume_usd = day_volume_usd,
+            .day_volume_btc = day_volume_btc,
+            .price_usd = price_usd,
+            .price_btc = price_btc,
+            .percent_volume = percent_volume,
+        };
+        ret.push_back(market);
+    }
+
+    return ret;
+}
+
 }  // end at namespace

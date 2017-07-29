@@ -15,6 +15,8 @@
 #ifndef AUTOT_COINMARKETCAP_H_
 #define AUTOT_COINMARKETCAP_H_
 
+#include <query/src/Document.h>
+#include <query/src/Node.h>
 #include <at/exceptions.hpp>
 #include <at/market.hpp>
 #include <at/types.hpp>
@@ -38,6 +40,16 @@ typedef struct {
     float bitcoin_percentage_of_market_cap;
     int active_currencies, active_assets, active_markets;
 } gm_data_t;
+
+// Cumulative market info per currency
+typedef struct {
+    std::string name;
+    currency_pair_t pair;
+    unsigned long long int day_volume_usd;
+    double day_volume_btc;
+    double price_usd, price_btc;
+    float percent_volume;
+} cm_market_t;
 
 inline void to_json(json& j, const gm_data_t& t)
 {
@@ -113,6 +125,7 @@ inline void from_json(const json& j, cm_ticker_t& t)
 class CoinMarketCap : private Thrower {
 private:
     const std::string _host = "https://api.coinmarketcap.com/v1/";
+    const std::string _reverse_host = "https://coinmarketcap.com/";
 
 public:
     CoinMarketCap() {}
@@ -121,6 +134,7 @@ public:
     std::vector<cm_ticker_t> ticker();
     std::vector<cm_ticker_t> ticker(uint32_t limit);
     cm_ticker_t ticker(std::string currency_name);
+    std::vector<cm_market_t> markets(std::string currency_name);
     gm_data_t global();
 };
 

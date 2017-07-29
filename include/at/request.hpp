@@ -34,12 +34,14 @@ namespace at {
 class Request {
 private:
     std::list<std::string> _headers;
+    std::string _get(std::string url);
 
 public:
     Request() {}
     Request(std::list<std::string> headers) : _headers(headers) {}
 
     json get(std::string);
+    std::string getHTML(std::string url);
     json post(std::string, json);
     json post(std::string, std::vector<std::pair<std::string, std::string>>);
 };
