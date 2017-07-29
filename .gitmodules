@@ -1,6 +1,0 @@
-[submodule "libs/gumbo/parser"]
-	path = libs/gumbo/parser
-	url = https://github.com/google/gumbo-parser
-[submodule "libs/gumbo/query"]
-	path = libs/gumbo/query
-	url = https://github.com/lazytiger/gumbo-query
