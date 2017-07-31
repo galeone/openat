@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AT_SHAPESHIFT_H_
-#define AT_SHAPESHIFT_H_
+#ifndef AT_KRAKEN_H_
+#define AT_KRAKEN_H_
 
 #include <at/exceptions.hpp>
 #include <at/market.hpp>
@@ -67,23 +67,22 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
  *
  * A server_error is when the status code of the request is != 200.
  * */
-class Shapeshift : public Market, private Thrower {
+class Kraken : public Market, private Thrower {
 private:
-    const std::string _host = "https://shapeshift.io/";
-    const std::string _affiliate_private_key;
-    std::map<std::string, std::string> _shift_params(currency_pair_t pair,
-                                                     hash_t return_addr,
-                                                     hash_t withdrawal_addr);
+    const std::string _host = "https://api.kraken.com/";
+    const std::string _api_key;
+    const std::string _otp;
+    unsigned long long int _nonce = 0;
 
 public:
-    Shapeshift() {}
-    Shapeshift(std::string affiliate_private_key)
-        : _affiliate_private_key(affiliate_private_key)
+    Kraken() {}
+    Kraken(std::string api_key) : _api_key(api_key) {}
+    Kraken(std::string api_key, std::string otp) : _api_key(api_key), _otp(otp)
     {
     }
-    ~Shapeshift() {}
+    ~Kraken() {}
 
-    /* Gets the current rate offered by Shapeshift. This is an estimate because
+    /* Gets the current rate offered by Kraken. This is an estimate because
      * the rate can occasionally change rapidly depending on the markets. The
      * rate is also a 'use-able' rate not a direct market rate. Meaning
      * multiplying your input coin amount times the rate should give you a close
@@ -91,7 +90,7 @@ public:
      * transaction (miner) fee taken off every transaction. */
     double rate(currency_pair_t) override;
 
-    /* Gets the current deposit limit set by Shapeshift. Amounts deposited over
+    /* Gets the current deposit limit set by Kraken. Amounts deposited over
      * this limit will be sent to the return address if one was entered,
      * otherwise the user will need to contact ShapeShift support to retrieve
      * their coins. This is an estimate because a sudden market swing could move
@@ -127,7 +126,7 @@ public:
      * hash_t is the deposit address to look up. */
     std::pair<status_t, uint32_t> timeRemeaningForTransaction(hash_t) override;
 
-    /* Allows anyone to get a list of all the currencies that Shapeshift
+    /* Allows anyone to get a list of all the currencies that Kraken
      * currently supports at any given time. The list will include the name,
      * symbol, availability status, and an icon link for each. */
     std::map<std::string, coin_t> coins() override;
@@ -192,4 +191,4 @@ public:
 
 }  // end namespace at
 
-#endif  // AT_SHAPESHIFT_H_
+#endif  // AT_KRAKEN_H_

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AUTOT_TYPE_H_
-#define AUTOT_TYPE_H_
+#ifndef AT_TYPE_H_
+#define AT_TYPE_H_
 
 #include <exception>
 #include <json.hpp>
@@ -163,4 +163,4 @@ inline std::ostream& operator<<(std::ostream& o, const status_t& s)
 
 }  // end namespace at
 
-#endif  // AUTOT_TYPE_H_
+#endif  // AT_TYPE_H_

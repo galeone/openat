@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AUTOT_EXCEPTIONS_H_
-#define AUTOT_EXCEPTIONS_H_
+#ifndef AT_EXCEPTIONS_H_
+#define AT_EXCEPTIONS_H_
 
 #include <at/types.hpp>
 #include <exception>
@@ -40,11 +40,23 @@ protected:
     {
         const auto e = res.find("error");
         if (e != res.end()) {
-            throw response_error((*e).get<std::string>());
+            auto val = *e;
+            if (val.is_string()) {
+                auto message = val.get<std::string>();
+                if (!message.empty()) {
+                    throw response_error(message);
+                }
+            }
+            else if (val.is_array() && val.size() > 0) {
+                auto message = val[0].get<std::string>();
+                if (!message.empty()) {
+                    throw response_error(message);
+                }
+            }
         }
     }
 };
 
 }  // end namespace at
 
-#endif  // AUTOT_EXCEPTIONS_H_
+#endif  // AT_EXCEPTIONS_H_

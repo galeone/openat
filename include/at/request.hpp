@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AUTOT_REQUEST_H_
-#define AUTOT_REQUEST_H_
+#ifndef AT_REQUEST_H_
+#define AT_REQUEST_H_
 
 #include <curl/curl.h>
 #include <at/types.hpp>
@@ -48,4 +48,4 @@ public:
 
 }  // end namespace at
 
-#endif  // AUTOT_REQUEST_H_
+#endif  // AT_REQUEST_H_

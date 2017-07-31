@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AUTOT_MARKET_H_
-#define AUTOT_MARKET_H_
+#ifndef AT_MARKET_H_
+#define AT_MARKET_H_
 
 #include <at/request.hpp>
 #include <at/types.hpp>
@@ -50,4 +50,4 @@ public:
 
 }  // end namespace at
 
-#endif  // AUTOT_MARKET_H_
+#endif  // AT_MARKET_H_

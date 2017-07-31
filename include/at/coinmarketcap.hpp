@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#ifndef AUTOT_COINMARKETCAP_H_
-#define AUTOT_COINMARKETCAP_H_
+#ifndef AT_COINMARKETCAP_H_
+#define AT_COINMARKETCAP_H_
 
 #include <query/src/Document.h>
 #include <query/src/Node.h>
@@ -140,4 +140,4 @@ public:
 
 }  // end namespace at
 
-#endif  // AUTOT_COINMARKETCAP_H_
+#endif  // AT_COINMARKETCAP_H_
