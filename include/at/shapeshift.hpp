@@ -16,6 +16,7 @@
 #define AT_SHAPESHIFT_H_
 
 #include <at/exceptions.hpp>
+#include <at/exchange.hpp>
 #include <at/market.hpp>
 #include <at/types.hpp>
 
@@ -65,9 +66,8 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
  * A response_error is when the API handles the request but for some reason
  * an error occuurs.
  *
- * A server_error is when the status code of the request is != 200.
- * */
-class Shapeshift : public Market, private Thrower {
+ * A server_error is when the status code of the request is != 200. */
+class Shapeshift : public Market, public Exchange, private Thrower {
 private:
     const std::string _host = "https://shapeshift.io/";
     const std::string _affiliate_private_key;
