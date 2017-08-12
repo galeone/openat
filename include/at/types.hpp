@@ -86,20 +86,16 @@ inline void to_json(json& j, const hash_t& a) { j = json::parse(a); }
 inline void from_json(const json& j, hash_t& a) { a = j.get<std::string>(); }
 
 typedef struct {
-    std::string name, symbol, image, status;
+    std::string name, symbol, status;
 } coin_t;
 inline void to_json(json& j, const coin_t& c)
 {
-    j = json{{"name", c.name},
-             {"symbol", c.symbol},
-             {"image", c.image},
-             {"status", c.status}};
+    j = json{{"name", c.name}, {"symbol", c.symbol}, {"status", c.status}};
 }
 inline void from_json(const json& j, coin_t& c)
 {
     c.name = j.at("name").get<std::string>();
     c.symbol = j.at("symbol").get<std::string>();
-    c.image = j.at("image").get<std::string>();
     c.status = j.at("status").get<std::string>();
 }
 
