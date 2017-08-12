@@ -34,7 +34,6 @@ public:
     virtual ~Market() {}
 
     // Pure virtual methods
-    virtual double rate(currency_pair_t) = 0;
     virtual deposit_limit_t depositLimit(currency_pair_t) = 0;
     virtual std::vector<market_info_t> info() = 0;
     virtual market_info_t info(currency_pair_t) = 0;
