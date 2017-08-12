@@ -12,11 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.*/
 
-#include <at/market.hpp>
+#ifndef AT_NAMESPACE_H_
+#define AT_NAMESPACE_H_
+
+#include <at/request.hpp>
 
 namespace at {
 
-bool Market::isValid(std::string symbol, hash_t address)
+// check if the address is OK for the specificed currency
+inline bool isValidAddress(std::string symbol, hash_t address)
 {
     std::ostringstream stream;
     stream << "https://shapeshift.io/validateAddress/" << address << "/"
@@ -25,8 +29,8 @@ bool Market::isValid(std::string symbol, hash_t address)
     Request req;
     try {
         json result = req.get(stream.str());
-        return result["isvalid"];  // shapeshift API claim is isValid, but
-                                   // is not
+        return result["isvalid"];  // shapeshift API doc claim is "isValid", but
+                                   // is "isvalid"
     }
     catch (std::runtime_error& e) {
         return false;
@@ -34,3 +38,5 @@ bool Market::isValid(std::string symbol, hash_t address)
 }
 
 }  // end namespace at
+
+#endif  // AT_NAMESPACE_H_

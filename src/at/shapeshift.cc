@@ -42,15 +42,15 @@ deposit_limit_t Shapeshift::depositLimit(currency_pair_t pair)
                            .max = std::stod(res["limit"].get<std::string>())};
 }
 
-std::vector<market_info_t> Shapeshift::info()
+std::vector<exchange_info_t> Shapeshift::info()
 {
     Request req;
     json res = req.get(_host + "marketinfo/");
     _throw_error_if_any(res);
     // ,{"limit":0.43007489,"maxLimit":0.43007489,"min":0.01802469,"minerFee":0.01,"pair":"NMC_PPC","rate":"1.06196283"}
-    std::vector<market_info_t> markets(res.size());
+    std::vector<exchange_info_t> markets(res.size());
     for (const auto& market : res) {
-        markets.push_back(market_info_t{
+        markets.push_back(exchange_info_t{
             .limit = deposit_limit_t{.min = market["min"].get<double>(),
                                      .max = market["limit"].get<double>()},
             .rate = std::stod(
@@ -60,7 +60,7 @@ std::vector<market_info_t> Shapeshift::info()
     return markets;
 }
 
-market_info_t Shapeshift::info(currency_pair_t pair)
+exchange_info_t Shapeshift::info(currency_pair_t pair)
 {
     Request req;
     std::ostringstream url;
@@ -72,7 +72,7 @@ market_info_t Shapeshift::info(currency_pair_t pair)
 
     // {"limit":0.43558867,"maxLimit":0.43558867,"minerFee":0.01,"minimum":0.01753086,"pair":"nmc_ppc","rate":1.04852027}
     // shapeshift API is inconsistent as hell
-    return market_info_t{
+    return exchange_info_t{
         .limit =
             deposit_limit_t{
                 .min =

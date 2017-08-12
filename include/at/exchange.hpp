@@ -15,7 +15,12 @@
 #ifndef AT_EXCHANGE_H_
 #define AT_EXCHANGE_H_
 
+#include <at/request.hpp>
 #include <at/types.hpp>
+#include <json.hpp>
+#include <map>
+#include <string>
+#include <utility>
 
 namespace at {
 
@@ -33,6 +38,21 @@ public:
      * approximation of what will be sent out. This rate does not include the
      * transaction (miner) fee taken off every transaction. */
     virtual double rate(currency_pair_t) = 0;
+
+    /* This gets the market info (pair, rate, limit, minimum limit, miner fee).
+     */
+    virtual std::vector<exchange_info_t> info() = 0;
+
+    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)
+     * for the spcified pair. */
+    virtual exchange_info_t info(currency_pair_t) = 0;
+
+    virtual deposit_limit_t depositLimit(currency_pair_t) = 0;
+    virtual json recentTransaction(uint32_t) = 0;
+    virtual status_t depositStatus(hash_t) = 0;
+    virtual std::pair<status_t, uint32_t> timeRemeaningForTransaction(
+        hash_t) = 0;
+    virtual std::map<std::string, coin_t> coins() = 0;
 };
 
 }  // end namespace at

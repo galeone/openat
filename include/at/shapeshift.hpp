@@ -17,7 +17,6 @@
 
 #include <at/exceptions.hpp>
 #include <at/exchange.hpp>
-#include <at/market.hpp>
 #include <at/types.hpp>
 
 namespace at {
@@ -67,7 +66,7 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
  * an error occuurs.
  *
  * A server_error is when the status code of the request is != 200. */
-class Shapeshift : public Market, public Exchange, private Thrower {
+class Shapeshift : public Exchange, private Thrower {
 private:
     const std::string _host = "https://shapeshift.io/";
     const std::string _affiliate_private_key;
@@ -98,13 +97,14 @@ public:
      * the limit. */
     deposit_limit_t depositLimit(currency_pair_t) override;
 
-    /* This gets the market info (pair, rate, limit, minimum limit, miner fee).
+    /* This gets the exchange info (pair, rate, limit, minimum limit, miner
+     * fee).
      */
-    std::vector<market_info_t> info() override;
+    std::vector<exchange_info_t> info() override;
 
-    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)
+    /* This gets the exchange info (pair, rate, limit, minimum limit, miner fee)
      * for the spcified pair. */
-    market_info_t info(currency_pair_t) override;
+    exchange_info_t info(currency_pair_t) override;
 
     /* Get a list of the most recent transactions.
      * max is the maximum number of transactions to return.

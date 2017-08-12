@@ -118,15 +118,29 @@ typedef struct {
     deposit_limit_t limit;
     double rate;
     double miner_fee;
+} exchange_info_t;
+inline void to_json(json& j, const exchange_info_t& m)
+{
+    j = json{{"limit", m.limit}, {"rate", m.rate}, {"miner_fee", m.miner_fee}};
+}
+inline void from_json(const json& j, exchange_info_t& m)
+{
+    m.limit = j.at("limit").get<deposit_limit_t>();
+    m.rate = j.at("rate").get<double>();
+    m.miner_fee = j.at("miner_fee").get<double>();
+}
+
+typedef struct {
+    deposit_limit_t limit;
+    double miner_fee;
 } market_info_t;
 inline void to_json(json& j, const market_info_t& m)
 {
-    j = json{{"limit", m.limit}, {"rate", m.rate}, {"miner_fee", m.miner_fee}};
+    j = json{{"limit", m.limit}, {"miner_fee", m.miner_fee}};
 }
 inline void from_json(const json& j, market_info_t& m)
 {
     m.limit = j.at("limit").get<deposit_limit_t>();
-    m.rate = j.at("rate").get<double>();
     m.miner_fee = j.at("miner_fee").get<double>();
 }
 

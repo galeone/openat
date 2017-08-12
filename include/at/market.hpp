@@ -42,9 +42,6 @@ public:
     virtual std::pair<status_t, uint32_t> timeRemeaningForTransaction(
         hash_t) = 0;
     virtual std::map<std::string, coin_t> coins() = 0;
-
-    // Not pure virtual, implementation exists
-    virtual bool isValid(std::string symbol, hash_t address);
 };
 
 }  // end namespace at
