@@ -10,9 +10,11 @@ MESSAGE( STATUS "SOURCES LI: " ${CURRENT_SRC})
 
 # Find threads to link next in target_link_libraries
 find_package(Threads)
+# Find also OpenSSL
 find_package(OpenSSL)
 
-# Executable at is the compilation of every .cc file
+# Executable at is the compilation of every .cc in this folder
+# and its subfolders
 add_executable (at "${CURRENT_SRC}")
 
 target_link_libraries (at LINK_PUBLIC
