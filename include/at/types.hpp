@@ -55,11 +55,17 @@ private:
 
 public:
     std::string first, second;
-    currency_pair_t(std::string first, std::string second)
+    currency_pair_t() {}
+    currency_pair_t(const std::string& first, const std::string& second)
     {
-        _pair = std::pair(first, second);
-        this->first = first;
-        this->second = second;
+        std::string ucFirst = first;
+        std::string ucSecond = second;
+        transform(ucFirst.begin(), ucFirst.end(), ucFirst.begin(), ::toupper);
+        transform(ucSecond.begin(), ucSecond.end(), ucSecond.begin(),
+                  ::toupper);
+        _pair = std::pair(ucFirst, ucSecond);
+        this->first = _pair.first;
+        this->second = _pair.second;
     }
 
     std::string str() const { return first + "_" + second; }
@@ -115,33 +121,54 @@ inline void from_json(const json& j, deposit_limit_t& d)
 }
 
 typedef struct {
+    currency_pair_t pair;
     deposit_limit_t limit;
     double rate;
     double miner_fee;
 } exchange_info_t;
 inline void to_json(json& j, const exchange_info_t& m)
 {
-    j = json{{"limit", m.limit}, {"rate", m.rate}, {"miner_fee", m.miner_fee}};
+    j = json{{"pair", m.pair.str()},
+             {"limit", m.limit},
+             {"rate", m.rate},
+             {"miner_fee", m.miner_fee}};
 }
 inline void from_json(const json& j, exchange_info_t& m)
 {
     m.limit = j.at("limit").get<deposit_limit_t>();
     m.rate = j.at("rate").get<double>();
     m.miner_fee = j.at("miner_fee").get<double>();
+    auto pair_str = j.at("pair").get<std::string>();
+    std::size_t delimiter_it = pair_str.find_last_of("_");
+    if (delimiter_it != std::string::npos) {
+        m.pair = currency_pair_t(pair_str.substr(0, delimiter_it),
+                                 pair_str.substr(delimiter_it + 1));
+    }
 }
 
 typedef struct {
+    currency_pair_t pair;
     deposit_limit_t limit;
-    double miner_fee;
+    double maker_fee, taker_fee;
 } market_info_t;
 inline void to_json(json& j, const market_info_t& m)
 {
-    j = json{{"limit", m.limit}, {"miner_fee", m.miner_fee}};
+    j = json{{"pair", m.pair.str()},
+             {"limit", m.limit},
+             {"taker_fee", m.taker_fee},
+             {"maker_fee", m.maker_fee}};
 }
 inline void from_json(const json& j, market_info_t& m)
 {
     m.limit = j.at("limit").get<deposit_limit_t>();
-    m.miner_fee = j.at("miner_fee").get<double>();
+    m.maker_fee = j.at("maker_fee").get<double>();
+    m.taker_fee = j.at("taker_fee").get<double>();
+    auto pair_str = j.at("pair").get<std::string>();
+    std::size_t delimiter_it = pair_str.find_last_of("_");
+    if (delimiter_it != std::string::npos) {
+        m.pair = currency_pair_t(pair_str.substr(0, delimiter_it),
+                                 pair_str.substr(delimiter_it + 1));
+    }
 }
 
 enum class status_t : char {
