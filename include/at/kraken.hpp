@@ -15,50 +15,20 @@
 #ifndef AT_KRAKEN_H_
 #define AT_KRAKEN_H_
 
+#include <at/crypt/namespace.hpp>
 #include <at/exceptions.hpp>
 #include <at/market.hpp>
 #include <at/types.hpp>
+#include <cerrno>
+#include <chrono>
+#include <ctime>
+#include <limits>
+#include <sstream>
 
 namespace at {
 
-typedef struct {
-    std::string inputTXID, inputAddress, inputCurrency;
-    double inputAmount;
-    std::string outputTXID, outputAddress, outputCurrency, outputAmount,
-        shiftRate, status;
-} shapeshift_tx_t;
-
-inline void to_json(json& j, const shapeshift_tx_t& t)
-{
-    j = json{{"inputTXID", t.inputTXID},
-             {"inputAddress", t.inputAddress},
-             {"inputCurrency", t.inputCurrency},
-             {"inputAmount", t.inputAmount},
-             {"outputTXID", t.outputTXID},
-             {"outputAddress", t.outputAddress},
-             {"outputCurrency", t.outputCurrency},
-             {"outputAmount", t.outputAmount},
-             {"status", t.status}};
-}
-
-inline void from_json(const json& j, shapeshift_tx_t& t)
-{
-    t.inputTXID = j.at("inputTXID").get<std::string>();
-    t.inputAddress = j.at("inputAddress").get<std::string>();
-    t.inputCurrency = j.at("inputCurrency").get<std::string>();
-    t.inputAmount = j.at("inputAmount").get<double>();
-
-    t.outputAmount = j.at("outputTXID").get<std::string>();
-    t.outputAmount = j.at("outputAddress").get<std::string>();
-    t.outputAmount = j.at("outputCurrency").get<std::string>();
-    t.outputAmount = j.at("outputAmount").get<std::string>();
-
-    t.shiftRate = j.at("shiftRate").get<std::string>();
-    t.status = j.at("status").get<std::string>();
-}
-
-/* Client for ShapeShift API.
- * API doumentation available: https://info.shapeshift.io/api
+/* Client for Kraken API.
+ * API doumentation available: https://www.kraken.com/help/api
  * Method descriptions are kept from that page.
  *
  * Every method can throw a response_error or a server_error.
@@ -66,127 +36,105 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
  * an error occuurs.
  *
  * A server_error is when the status code of the request is != 200.
- * */
+ *
+ * Margin trading is too risky and thus is not supported. */
+
 class Kraken : public Market, private Thrower {
+    // class Kraken : private Thrower {
 private:
-    const std::string _host = "https://api.kraken.com/";
-    const std::string _api_key;
+    const std::string _version = "0";
+    const std::string _host = "https://api.kraken.com/" + _version + "/";
+    const std::string _api_key, _api_secret;
     const std::string _otp;
-    unsigned long long int _nonce = 0;
+    std::vector<std::string> _available_symbols;
+
+    const std::map<std::string, double> _minimumLimits = {
+        // https://support.kraken.com/hc/en-us/articles/205893708-What-is-the-minimum-order-size-
+        {"REP", 0.3},   {"XBT", 0.002}, {"BTC", 0.002}, {"BCH", 0.002},
+        {"DASH", 0.03}, {"DOGE", 3000}, {"EOS", 3},     {"ETH", 0.02},
+        {"ETC", 0.3},   {"GNO", 0.03},  {"ICN", 2},     {"LTC", 0.1},
+        {"MLN", 0.1},   {"XMR", 0.1},   {"XRP", 30},    {"XLM", 300},
+        {"ZEC", 0.03},  {"USDT", 5}};
+
+    // Returns available symbols
+    std::vector<std::string> _symbols();
+
+    // Kraken uses XBT while other uses BTC.
+    // Replace inputs symbol BTC with XBT
+    void _sanitize_pair(currency_pair_t& pair);
+
+    // Returns the minimum amount tradable for the specified currency
+    double _minTradable(const std::string& symbol);
+
+    // Converts a XXXYYY string in a currenty_pair_t, if XXX and YYY are known
+    // symbols
+    currency_pair_t _str2pair(std::string str);
+
+    // _nonce = [0prefix || timestamp]<width = 10> || [nanoseconds]<width = 9>
+    std::string _nonce() const;
+
+    // base64encode(
+    //  hmac_sha512(path + sha256(nonce + postdata),
+    //   base64decode(_api_key))
+    // )
+    std::string _sign(const std::string& path, const std::string& nonce,
+                      const std::string& postdata) const;
+
+    // Authenticated post request
+    json _request(std::string method,
+                  std::vector<std::pair<std::string, std::string>> params);
 
 public:
     Kraken() {}
-    Kraken(std::string api_key) : _api_key(api_key) {}
-    Kraken(std::string api_key, std::string otp) : _api_key(api_key), _otp(otp)
+    Kraken(std::string api_key, std::string api_secret)
+        : _api_key(api_key), _api_secret(api_secret)
+    {
+    }
+    Kraken(std::string api_key, std::string api_secret, std::string otp)
+        : _api_key(api_key), _api_secret(api_secret), _otp(otp)
     {
     }
     ~Kraken() {}
 
-    /* Gets the current rate offered by Kraken. This is an estimate because
-     * the rate can occasionally change rapidly depending on the markets. The
-     * rate is also a 'use-able' rate not a direct market rate. Meaning
-     * multiplying your input coin amount times the rate should give you a close
-     * approximation of what will be sent out. This rate does not include the
-     * transaction (miner) fee taken off every transaction. */
-    double rate(currency_pair_t) override;
+    /* Get server time
+     * URL: https://api.kraken.com/0/public/Time
+     *
+     * Result: Server's time */
+    std::time_t time() const;
 
-    /* Gets the current deposit limit set by Kraken. Amounts deposited over
-     * this limit will be sent to the return address if one was entered,
-     * otherwise the user will need to contact ShapeShift support to retrieve
-     * their coins. This is an estimate because a sudden market swing could move
-     * the limit. */
-    deposit_limit_t depositLimit(currency_pair_t) override;
+    /* Get asset info
+     * URL: https://api.kraken.com/0/public/Assets
+     * Allows anyone to get a list of all the currencies that Kraken
+     * currently supports at any given time. The list will include the name,
+     * symbol, availability status, and an icon link for each. */
+    std::map<std::string, coin_t> coins() override;
+
+    /* Gets the current deposit info set by Kraken for the
+     * specified currency. */
+    deposit_info_t depositInfo(std::string currency) override;
 
     /* This gets the market info (pair, rate, limit, minimum limit, miner fee).
      */
     std::vector<market_info_t> info() override;
 
-    /* This gets the market info (pair, rate, limit, minimum limit, miner fee)
-     * for the spcified pair. */
+    /* This gets the market info (pair, limit, minimum limit, miner fee)
+     * for the spcified currency. */
     market_info_t info(currency_pair_t) override;
 
-    /* Get a list of the most recent transactions.
-     * max is the maximum number of transactions to return.
-     * Also, max must be a number between 1 and 50 (inclusive). */
-    json recentTransaction(uint32_t) override;
+    /* This gets the account balance, amount for every currency */
+    std::map<std::string, double> balance() override;
 
-    /* This returns the status of the most recent deposit transaction to the
-     * address. */
-    status_t depositStatus(hash_t) override;
+    /* This gets the account balance for the specified currency */
+    double balance(std::string currency) override;
 
-    /* When a transaction is created with a fixed amount requested there is a 10
-     * minute window for the deposit. After the 10 minute window if the deposit
-     * has not been received the transaction expires and a new one must be
-     * created. This api call returns how many seconds are left before the
-     * transaction expires. Please note that if the address is a ripple address,
-     * it will include the "?dt=destTagNUM" appended on the end, and you will
-     * need to use the URIEncodeComponent() function on the address before
-     * sending it in as a param, to get a successful response.
-     *
-     * hash_t is the deposit address to look up. */
-    std::pair<status_t, uint32_t> timeRemeaningForTransaction(hash_t) override;
+    /* This gets the ticker for the specified pair at the current time */
+    ticker_t ticker(currency_pair_t) override;
 
-    /* Allows anyone to get a list of all the currencies that Kraken
-     * currently supports at any given time. The list will include the name,
-     * symbol, availability status, and an icon link for each. */
-    std::map<std::string, coin_t> coins() override;
+    /* This get the order book for the specicified pair */
+    std::vector<ticker_t> orderBook(currency_pair_t) override;
 
-    /* Allows vendors to get a list of all transactions that have ever been done
-     * using a specific API key. Transactions are created with an affilliate
-     * PUBLIC KEY, but they are looked up using the linked PRIVATE KEY, to
-     * protect the privacy of our affiliates' account details. */
-    std::vector<shapeshift_tx_t> transactionsList();
-
-    /* Allows vendors to get a list of all transactions that have ever been sent
-     * to one of their addresses. The affilliate's PRIVATE KEY must be provided,
-     * and will only return transactions that were sent to output address AND
-     * were created using / linked to the affiliate's PUBLIC KEY. Please note
-     * that if the address is a ripple address and it includes the
-     * "?dt=destTagNUM" appended on the end, you will need to use the
-     * URIEncodeComponent() function on the address before sending it in as a
-     * param, to get a successful response.
-     *
-     * hash_t the address that output coin was sent to for the shift. */
-    std::vector<shapeshift_tx_t> transactionsList(hash_t);
-
-    /* This is the primary data input into ShapeShift.
-     * Use only certain fields of the data required by the API (no optional
-     * fields for XRP or optional fields for NXT).
-     * If the object was instantiate with an API Key, the API key is sent in the
-     * body request.
-     * Returns the address in which deposit the [input_coin] amount to convert
-     * into [output_coin]
-     *
-     * pair = what coins are being exchanged
-     * returnAddress = [input_coin address] address to return deposit to if
-     * anything goes wrong with exchange
-     * withdrawal = [output_coin address] the address for resulting coin to be
-     * sent to. */
-    hash_t shift(currency_pair_t, hash_t return_addr, hash_t withdrawal_addr);
-
-    /* This call allows you to request a fixed amount to be sent to the
-     * withdrawal address. You provide a withdrawal address and the amount you
-     * want sent to it. We return the amount to deposit and the address to
-     * deposit to. This allows you to use shapeshift as a payment mechanism. */
-    hash_t shift(currency_pair_t, hash_t return_addr, hash_t withdrawal_addr,
-                 double amount);
-
-    /* This call requests a receipt for a transaction. The email address will be
-     * added to the conduit associated with that transaction as well. (Soon it
-     * will also send receipts to subsequent transactions on that conduit). */
-    bool sendReceipt(std::string, hash_t);
-
-    /* This call also allows you to request a quoted price on the amount of a
-     * transaction. */
-    json quotedPrice(currency_pair_t, double amount);
-
-    /* This call allows you to request for canceling a pending transaction by
-     * the deposit address. If there is fund sent to the deposit address, this
-     * pending transaction cannot be canceled.
-     *
-     * Throws a response_error if an error occur
-     * */
-    void cancel(hash_t);
+    /* This get the complete closed orders */
+    std::vector<order_t> closedOrders() override;
 };
 
 }  // end namespace at
