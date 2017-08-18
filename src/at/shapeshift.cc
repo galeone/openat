@@ -25,7 +25,7 @@ double Shapeshift::rate(currency_pair_t pair)
     url << pair;
     json res = req.get(url.str());
     _throw_error_if_any(res);
-    return std::stod(res["rate"].get<std::string>());
+    return std::stod(res.at("rate").get<std::string>());
 }
 
 deposit_limit_t Shapeshift::depositLimit(currency_pair_t pair)
@@ -38,8 +38,9 @@ deposit_limit_t Shapeshift::depositLimit(currency_pair_t pair)
     json res = req.get(url.str());
     _throw_error_if_any(res);
     // {"limit":"1.81514557","min":"0.000821","pair":"btc_eth"}
-    return deposit_limit_t{.min = std::stod(res["min"].get<std::string>()),
-                           .max = std::stod(res["limit"].get<std::string>())};
+    return deposit_limit_t{
+        .min = std::stod(res.at("min").get<std::string>()),
+        .max = std::stod(res.at("limit").get<std::string>())};
 }
 
 std::vector<exchange_info_t> Shapeshift::info()
@@ -50,18 +51,22 @@ std::vector<exchange_info_t> Shapeshift::info()
     // ,{"limit":0.43007489,"maxLimit":0.43007489,"min":0.01802469,"minerFee":0.01,"pair":"NMC_PPC","rate":"1.06196283"}
     std::vector<exchange_info_t> markets;
     for (const auto& market : res) {
-        auto pair_str = market["pair"].get<std::string>();
+        auto pair_str = market.at("pair").get<std::string>();
         size_t delimiter_it = pair_str.find_last_of("_");
         auto pair = currency_pair_t(pair_str.substr(0, delimiter_it),
                                     pair_str.substr(delimiter_it + 1));
-
-        markets.push_back(exchange_info_t{
-            .pair = pair,
-            .limit = deposit_limit_t{.min = market["min"].get<double>(),
-                                     .max = market["limit"].get<double>()},
-            .rate = std::stod(
-                market["rate"].get<std::string>()),  // rate is a string
-            .miner_fee = market["minerFee"].get<double>()});
+        try {
+            markets.push_back(exchange_info_t{
+                .pair = pair,
+                .limit =
+                    deposit_limit_t{.min = market.at("min").get<double>(),
+                                    .max = market.at("limit").get<double>()},
+                .rate = std::stod(
+                    market.at("rate").get<std::string>()),  // rate is a string
+                .miner_fee = market.at("minerFee").get<double>()});
+        }
+        catch (const std::out_of_range&) {
+        }  // skip non complete rows
     }
     return markets;
 }
@@ -82,11 +87,11 @@ exchange_info_t Shapeshift::info(currency_pair_t pair)
         .pair = pair,
         .limit =
             deposit_limit_t{
-                .min =
-                    market["minimum"].get<double>(),  // minumum instead of min
-                .max = market["limit"].get<double>()},
-        .rate = market["rate"].get<double>(),  // rate is no more a string
-        .miner_fee = market["minerFee"].get<double>()};
+                .min = market.at("minimum")
+                           .get<double>(),  // minumum instead of min
+                .max = market.at("limit").get<double>()},
+        .rate = market.at("rate").get<double>(),  // rate is no more a string
+        .miner_fee = market.at("minerFee").get<double>()};
 }
 
 json Shapeshift::recentTransaction(uint32_t max)
@@ -104,7 +109,7 @@ status_t Shapeshift::depositStatus(hash_t address)
     Request req;
     json res = req.get(_host + "txStat/" + address);
     _throw_error_if_any(res);
-    std::string status = res["status"].get<std::string>();
+    std::string status = res.at("status").get<std::string>();
     if (status == "complete") {
         return status_t::complete;
     }
@@ -130,7 +135,7 @@ std::pair<status_t, uint32_t> Shapeshift::timeRemeaningForTransaction(
         s = status_t::pending;
     }
 
-    return std::pair(s, res["seconds_remaining"].get<uint32_t>());
+    return std::pair(s, res.at("seconds_remaining").get<uint32_t>());
 }
 
 std::map<std::string, coin_t> Shapeshift::coins()
@@ -233,7 +238,7 @@ bool Shapeshift::sendReceipt(std::string email, hash_t txid)
     json data = {{"email", email}, {"txid", txid}};
     json res = req.post(_host + "mail", data);
     _throw_error_if_any(res);
-    return res["status"].get<std::string>() == "success";
+    return res.at("status").get<std::string>() == "success";
 }
 
 }  // end at namespace
