@@ -24,6 +24,11 @@
 
 namespace at {
 
+static inline void toupper(std::string& str)
+{
+    transform(str.begin(), str.end(), str.begin(), ::toupper);
+}
+
 // Remember:
 // Functions included in multiple source files must be inline
 // http://en.cppreference.com/w/cpp/language/inline
@@ -60,9 +65,8 @@ public:
     {
         std::string ucFirst = first;
         std::string ucSecond = second;
-        transform(ucFirst.begin(), ucFirst.end(), ucFirst.begin(), ::toupper);
-        transform(ucSecond.begin(), ucSecond.end(), ucSecond.begin(),
-                  ::toupper);
+        toupper(ucFirst);
+        toupper(ucSecond);
         _pair = std::pair(ucFirst, ucSecond);
         this->first = _pair.first;
         this->second = _pair.second;
@@ -121,6 +125,29 @@ inline void from_json(const json& j, deposit_limit_t& d)
 }
 
 typedef struct {
+    deposit_limit_t limit;
+    double fee;
+    std::string currency;
+    std::string method;
+} deposit_info_t;
+
+inline void to_json(json& j, const deposit_info_t& d)
+{
+    j = json{{"limit", d.limit},
+             {"fee", d.fee},
+             {"currency", d.currency},
+             {"method", d.method}};
+}
+inline void from_json(const json& j, deposit_info_t& d)
+{
+    d.limit.max = j["limit"]["max"].get<double>();
+    d.limit.min = j["limit"]["min"].get<double>();
+    d.fee = j.at("fee").get<double>();
+    d.currency = j.at("currency").get<std::string>();
+    d.method = j.at("method").get<std::string>();
+}
+
+typedef struct {
     currency_pair_t pair;
     deposit_limit_t limit;
     double rate;
@@ -172,12 +199,15 @@ inline void from_json(const json& j, market_info_t& m)
 }
 
 enum class status_t : char {
-    no_deposists = 'n',
-    received = 'r',
-    complete = 'c',
-    failed = 'f',
-    pending = 'p',
-    expired = 'e',
+    no_deposists = 'a',
+    initial,   // initial
+    received,  // received
+    complete,  // = success
+    settled,   // settled
+    pending,   // pending
+    failed,    // failure
+    partial,   // partial
+    expired,   // experied
 };
 
 inline std::ostream& operator<<(std::ostream& o, const status_t& s)
@@ -185,19 +215,49 @@ inline std::ostream& operator<<(std::ostream& o, const status_t& s)
     switch (s) {
         case status_t::no_deposists:
             return o << "no_deposists";
+        case status_t::initial:
+            return o << "initial";
         case status_t::received:
             return o << "received";
         case status_t::complete:
             return o << "complete";
-        case status_t::failed:
-            return o << "failed";
+        case status_t::settled:
+            return o << "settled";
         case status_t::pending:
             return o << "pending";
+        case status_t::failed:
+            return o << "failed";
+        case status_t::partial:
+            return o << "partial";
         default:
             return o << "expired";
     }
 }
 
+typedef struct {
+    double price;
+    double amount;
+    time_t time;
+} quotation_t;
+
+typedef struct {
+    quotation_t bid;
+    quotation_t ask;
+} ticker_t;
+
+typedef struct {
+    std::string status;     // open, closed, cancelled
+    std::string ordertype;  // limit & co
+    std::string type;       // buy/sell
+    currency_pair_t pair;
+    time_t open;
+    time_t close;
+    double volume;
+    double cost;
+    double fee;
+    double price;
+} order_t;
+
 }  // end namespace at
 
-#endif  // AT_TYPE_H_
+#endif  // AT_TYPE_H

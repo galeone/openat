@@ -34,14 +34,15 @@ public:
     virtual ~Market() {}
 
     // Pure virtual methods
-    virtual deposit_limit_t depositLimit(currency_pair_t) = 0;
+    virtual deposit_info_t depositInfo(std::string currency) = 0;
     virtual std::vector<market_info_t> info() = 0;
     virtual market_info_t info(currency_pair_t) = 0;
-    virtual json recentTransaction(uint32_t) = 0;
-    virtual status_t depositStatus(hash_t) = 0;
-    virtual std::pair<status_t, uint32_t> timeRemeaningForTransaction(
-        hash_t) = 0;
+    virtual ticker_t ticker(currency_pair_t) = 0;
+    virtual std::vector<ticker_t> orderBook(currency_pair_t) = 0;
     virtual std::map<std::string, coin_t> coins() = 0;
+    virtual std::map<std::string, double> balance() = 0;
+    virtual double balance(std::string currency) = 0;
+    virtual std::vector<order_t> closedOrders() = 0;
 };
 
 }  // end namespace at
