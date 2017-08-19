@@ -246,6 +246,7 @@ typedef struct {
 } ticker_t;
 
 typedef struct {
+    hash_t txid;            // transaction ID
     std::string status;     // open, closed, cancelled
     std::string ordertype;  // limit & co
     std::string type;       // buy/sell
