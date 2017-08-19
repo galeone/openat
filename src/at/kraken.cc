@@ -337,9 +337,9 @@ std::vector<order_t> Kraken::closedOrders()
     std::vector<order_t> ret;
 
     for (auto it = res.begin(); it != res.end(); it++) {
-        // key = tx id
         auto row = it.value();
         order_t order;
+        order.txid = it.key();
         order.status = row.at("status").get<std::string>();
         order.open = row.at("opentm").get<double>();
         order.close = row.at("closetm").get<double>();
@@ -353,6 +353,50 @@ std::vector<order_t> Kraken::closedOrders()
         ret.push_back(order);
     }
     return ret;
+}
+
+void Kraken::place(order_t& order)
+{
+    _sanitize_pair(order.pair);
+    if (order.type.empty()) {
+        throw std::runtime_error("order.type can't be empty: BUY/SELL");
+    }
+    if (order.ordertype.empty()) {
+        throw std::runtime_error(
+            "order.ordertype can't be empty: limit/market");
+    }
+    std::vector<std::pair<std::string, std::string>> params;
+    params.push_back({"pair", order.pair.first + order.pair.second});
+    params.push_back({"type", order.type});
+    params.push_back({"ordertype", order.ordertype});
+    params.push_back({"volume", std::to_string(order.volume)});
+
+    auto ordertype = order.ordertype;
+    toupper(ordertype);
+    if (ordertype == "MARKET") {
+        if (order.volume <= 0) {
+            throw std::runtime_error("order.volume can't be <= 0");
+        }
+    }
+    else {
+        if (order.volume * order.price <= 0) {
+            throw std::runtime_error(
+                "order.volume * order.price can't be <= 0");
+        }
+        params.push_back({"price", std::to_string(order.price)});
+    }
+
+    json res = _request("AddOrder", params);
+    _throw_error_if_any(res);
+    res = res["result"];
+    order.txid = res["txid"][0].get<std::string>();
+}
+
+void Kraken::cancel(order_t& order)
+{
+    json res = _request("CancelOrder", {{"txid", order.txid}});
+    _throw_error_if_any(res);
+    order = {};
 }
 
 }  // end at namespace

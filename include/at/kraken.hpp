@@ -135,6 +135,13 @@ public:
 
     /* This get the complete closed orders */
     std::vector<order_t> closedOrders() override;
+
+    /* This adds an order using only the meaningful fields of order and filling
+     * the remeaning fields once the order has been placed */
+    void place(order_t&) override;
+
+    /* This cancel the specified order idientified by order.txid */
+    void cancel(order_t&) override;
 };
 
 }  // end namespace at

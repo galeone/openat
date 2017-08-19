@@ -43,6 +43,8 @@ public:
     virtual std::map<std::string, double> balance() = 0;
     virtual double balance(std::string currency) = 0;
     virtual std::vector<order_t> closedOrders() = 0;
+    virtual void place(order_t&) = 0;
+    virtual void cancel(order_t&) = 0;
 };
 
 }  // end namespace at
