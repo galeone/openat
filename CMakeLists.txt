@@ -4,6 +4,8 @@
 cmake_minimum_required (VERSION 3.1)
 project (at)
 
+set ( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" )
+
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 # create compile_commands.json in build dir while compiling
 
@@ -15,7 +17,7 @@ set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
 set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
 set (GUMBOPARSER "${GUMBO}/parser")
 set (GUMBOQUERY "${GUMBO}/query")
-
+set (SQLITEPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp-2.1.0")
 
 # Compile curlpp, that uses cmake
 add_subdirectory(${CURLPP})
@@ -36,10 +38,11 @@ ExternalProject_Add(gumbo_parser
 set (Gumbo_INCLUDE_DIR "${GUMBOPARSER}/include")
 set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
 set (Gumbo_static_LIBRARY "${GUMBOPARSER}/lib/libgumbo.a")
-add_subdirectory(${GUMBOQUERY}) #defines gumbo_query, but not defines a library
+add_subdirectory(${GUMBOQUERY}) #defines gumbo_query
 
-#add_library(gumbo_query STATIC IMPORTED)
-#set_target_properties(gumbo_query PROPERTIES IMPORTED_LOCATION ${GUMBOQUERY}/lib/libgq.a)
+# Compile and define SQLiteCpp
+add_subdirectory(${SQLITEPP})
+
 
 set (INCLUDES 
   # -I ./include
@@ -54,6 +57,8 @@ set (INCLUDES
   # Instead of having "File.h" included, I prefer to include the whole strucuture
   # query/src/File.h
   ${GUMBO}/
+  # -I /libs/SQLiteCpp-2.1.0/include
+  ${SQLITEPP}/include
 )
 
 include_directories("${INCLUDES}")
