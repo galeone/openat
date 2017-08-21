@@ -21,42 +21,6 @@
 
 namespace at {
 
-typedef struct {
-    std::string inputTXID, inputAddress, inputCurrency;
-    double inputAmount;
-    std::string outputTXID, outputAddress, outputCurrency, outputAmount,
-        shiftRate, status;
-} shapeshift_tx_t;
-
-inline void to_json(json& j, const shapeshift_tx_t& t)
-{
-    j = json{{"inputTXID", t.inputTXID},
-             {"inputAddress", t.inputAddress},
-             {"inputCurrency", t.inputCurrency},
-             {"inputAmount", t.inputAmount},
-             {"outputTXID", t.outputTXID},
-             {"outputAddress", t.outputAddress},
-             {"outputCurrency", t.outputCurrency},
-             {"outputAmount", t.outputAmount},
-             {"status", t.status}};
-}
-
-inline void from_json(const json& j, shapeshift_tx_t& t)
-{
-    t.inputTXID = j.at("inputTXID").get<std::string>();
-    t.inputAddress = j.at("inputAddress").get<std::string>();
-    t.inputCurrency = j.at("inputCurrency").get<std::string>();
-    t.inputAmount = j.at("inputAmount").get<double>();
-
-    t.outputAmount = j.at("outputTXID").get<std::string>();
-    t.outputAmount = j.at("outputAddress").get<std::string>();
-    t.outputAmount = j.at("outputCurrency").get<std::string>();
-    t.outputAmount = j.at("outputAmount").get<std::string>();
-
-    t.shiftRate = j.at("shiftRate").get<std::string>();
-    t.status = j.at("status").get<std::string>();
-}
-
 /* Client for ShapeShift API.
  * API doumentation available: https://info.shapeshift.io/api
  * Method descriptions are kept from that page.
