@@ -6,9 +6,6 @@ cmake_minimum_required (VERSION 3.1)
 # define variable CURRENT_SRC
 file(GLOB_RECURSE CURRENT_SRC "*.cc")
 
-MESSAGE( STATUS "SOURCES LI: " ${CURRENT_SRC})
-MESSAGE( STATUS "WAT: " ${CMAKE_MODULE_PATH})
-
 # Find threads to link next in target_link_libraries
 find_package(Threads)
 # Find also OpenSSL
