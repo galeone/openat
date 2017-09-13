@@ -37,15 +37,22 @@ class CoinMarketCap : private Thrower {
 private:
     const std::string _host = "https://api.coinmarketcap.com/v1/";
     const std::string _reverse_host = "https://coinmarketcap.com/";
+    std::map<std::string, std::string> _symbol_to_id;
 
 public:
-    CoinMarketCap() {}
+    CoinMarketCap()
+    {
+        auto infos = ticker();
+        for (const auto& info : infos) {
+            _symbol_to_id[info.symbol] = info.id;
+        }
+    }
     ~CoinMarketCap() {}
 
     std::vector<cm_ticker_t> ticker();
     std::vector<cm_ticker_t> ticker(uint32_t limit);
-    cm_ticker_t ticker(std::string currency_name);
-    std::vector<cm_market_t> markets(std::string currency_name);
+    cm_ticker_t ticker(std::string currency_symbol);
+    std::vector<cm_market_t> markets(std::string currency_symbol);
     gm_data_t global();
 };
 

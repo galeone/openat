@@ -34,10 +34,13 @@ std::vector<cm_ticker_t> CoinMarketCap::ticker(uint32_t limit)
     return res;
 }
 
-cm_ticker_t CoinMarketCap::ticker(std::string currency_name)
+cm_ticker_t CoinMarketCap::ticker(std::string currency_symbol)
 {
     Request req;
-    json res = req.get(_host + "ticker/" + currency_name)[0];
+    toupper(currency_symbol);
+    auto id = _symbol_to_id.find(currency_symbol);
+    currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
+    json res = req.get(_host + "ticker/" + currency_symbol)[0];
     _throw_error_if_any(res);
     return res;
 }
@@ -50,11 +53,14 @@ gm_data_t CoinMarketCap::global()
     return res;
 }
 
-std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_name)
+std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
 {
     Request req;
+    toupper(currency_symbol);
+    auto id = _symbol_to_id.find(currency_symbol);
+    currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
     std::string page =
-        req.getHTML(_reverse_host + "currencies/" + currency_name);
+        req.getHTML(_reverse_host + "currencies/" + currency_symbol);
 
     CDocument doc;
     doc.parse(page.c_str());
@@ -62,7 +68,7 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_name)
     if (table.nodeNum() == 0) {
         throw std::runtime_error(
             "Unable to find table with ID markets-table, on " + _host +
-            "currencies/" + currency_name);
+            "currencies/" + currency_symbol);
     }
 
     std::vector<cm_market_t> ret;
@@ -86,8 +92,7 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_name)
 
         // 3: volumes <span data-usd="value", data-btc="value">
         CNode span = fields.nodeAt(3).find("span").nodeAt(0);
-        unsigned long long int day_volume_usd =
-            std::stoull(span.attribute("data-usd"));
+        long long int day_volume_usd = std::stoull(span.attribute("data-usd"));
         double day_volume_btc = std::stod(span.attribute("data-btc"));
 
         // 4: prices <span data-usd, data-btc

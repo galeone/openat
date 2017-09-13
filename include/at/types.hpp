@@ -29,6 +29,11 @@ static inline void toupper(std::string& str)
     transform(str.begin(), str.end(), str.begin(), ::toupper);
 }
 
+static inline void tolower(std::string& str)
+{
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+}
+
 // Remember:
 // Functions included in multiple source files must be inline
 // http://en.cppreference.com/w/cpp/language/inline
@@ -67,7 +72,7 @@ public:
         std::string ucSecond = second;
         toupper(ucFirst);
         toupper(ucSecond);
-        _pair = std::pair(ucFirst, ucSecond);
+        _pair = std::pair<std::string, std::string>(ucFirst, ucSecond);
         this->first = _pair.first;
         this->second = _pair.second;
     }
@@ -300,7 +305,7 @@ typedef struct {
     std::string id, name, symbol;
     int rank;
     double price_usd, price_btc;
-    unsigned long long int day_volume_usd, market_cap_usd, available_supply,
+    long long int day_volume_usd, market_cap_usd, available_supply,
         total_supply;
     float percent_change_1h, percent_change_24h, percent_change_7d;
     std::time_t last_updated;
@@ -308,7 +313,7 @@ typedef struct {
 
 // Global markets data
 typedef struct {
-    unsigned long long int total_market_cap_usd, total_24h_volume_usd;
+    long long int total_market_cap_usd, total_24h_volume_usd;
     float bitcoin_percentage_of_market_cap;
     int active_currencies, active_assets, active_markets;
 } gm_data_t;
@@ -317,7 +322,7 @@ typedef struct {
 typedef struct {
     std::string name;
     currency_pair_t pair;
-    unsigned long long int day_volume_usd;
+    long long int day_volume_usd;
     double day_volume_btc;
     double price_usd, price_btc;
     float percent_volume;
@@ -336,10 +341,10 @@ inline void to_json(json& j, const gm_data_t& t)
 
 inline void from_json(const json& j, gm_data_t& t)
 {
-    t.total_market_cap_usd = static_cast<unsigned long long int>(
-        j.at("total_market_cap_usd").get<double>());
-    t.total_24h_volume_usd = static_cast<unsigned long long int>(
-        j.at("total_24h_volume_usd").get<double>());
+    t.total_market_cap_usd =
+        static_cast<long long int>(j.at("total_market_cap_usd").get<double>());
+    t.total_24h_volume_usd =
+        static_cast<long long int>(j.at("total_24h_volume_usd").get<double>());
     t.bitcoin_percentage_of_market_cap =
         j.at("bitcoin_percentage_of_market_cap").get<float>();
     t.active_currencies = j.at("active_currencies").get<int>();
