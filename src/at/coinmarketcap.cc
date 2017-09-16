@@ -80,6 +80,15 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
             throw std::runtime_error("Expected 6 columns, got " +
                                      std::to_string(fields.nodeNum()));
         }
+
+        // Skip markets not updated recently
+        // 6: updated
+        std::string updated_string = fields.nodeAt(6).text();
+        at::tolower(updated_string);
+        if (updated_string != "recently") {
+            continue;
+        }
+
         // 0: rank, unused because we insert in the return vector following this
         // order
         // 1: <a link>name</a>
