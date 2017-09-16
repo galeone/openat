@@ -37,4 +37,5 @@ compile_commands.json
 # Build folder
 build/*
 
-src/main.cc
+tests/*
+config.json
