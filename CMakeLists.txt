@@ -37,13 +37,15 @@ ExternalProject_Add(gumbo_parser
 
 # Compile gumbo-query that users gumbo and cmake
 set (Gumbo_INCLUDE_DIR "${GUMBOPARSER}/include")
-set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
 set (Gumbo_static_LIBRARY "${GUMBOPARSER}/lib/libgumbo.a")
+set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
+if(APPLE)
+    set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.dylib")
+endif()
 add_subdirectory(${GUMBOQUERY}) #defines gumbo_query
 
 # Compile and define SQLiteCpp
 add_subdirectory(${SQLITEPP})
-
 
 set (INCLUDES 
   # -I ./include
