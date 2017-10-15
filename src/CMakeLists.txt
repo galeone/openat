@@ -7,10 +7,14 @@ cmake_minimum_required (VERSION 3.1)
 file(GLOB_RECURSE CURRENT_SRC "*.cc")
 
 # Find threads to link next in target_link_libraries
-find_package(Threads)
+find_package(Threads REQUIRED)
 # Find also OpenSSL
-find_package(OpenSSL)
-find_package(Sqlite3)
+find_package(OpenSSL REQUIRED)
+find_package(Sqlite3 REQUIRED)
+
+include_directories(
+    ${OPENSSL_INCLUDE_DIR}
+)
 
 # Executable at is the compilation of every .cc in this folder
 # and its subfolders

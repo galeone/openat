@@ -10,6 +10,8 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 # create compile_commands.json in build dir while compiling
 
 set (CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 
 set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp-0.8.1")
@@ -59,7 +61,7 @@ set (INCLUDES
   # -I ./libs/gumbo/parser/include
   ${GUMBOPARSER}/include
   # -I ./libs/gumbo/ #because gumbo-query is badly structured
-  # Instead of having "File.h" included, I prefer to include the whole strucuture
+  # Instead of having "File.h" included, I prefer to include the whole structure
   # query/src/File.h
   ${GUMBO}/
   # -I /libs/SQLiteCpp-2.1.0/include
