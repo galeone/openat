@@ -11,6 +11,9 @@
 *.gch
 *.pch
 
+# Debug files
+*.dSYM
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
