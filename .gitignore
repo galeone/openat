@@ -34,6 +34,9 @@
 *.out
 *.app
 
+# Gumbo build tmp files
+libs/gumbo/parser/tmp
+
 # Compile commands
 compile_commands.json
 
