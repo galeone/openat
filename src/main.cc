@@ -31,11 +31,90 @@
 #include <fstream>
 #include <iostream>
 #include <json.hpp>
+#include <memory>
 #include <set>
 #include <thread>
 
 using namespace at;
 using namespace std::chrono_literals;
+
+// Stupid but fast hash function
+constexpr int _hash(const char* value)
+{
+    if (value == NULL) {
+        return 0;
+    }
+    int ret = 0, i = 0;
+    while (value[i] != '\0') {
+        ret |= value[i] << (i % 8);
+        i++;
+    }
+    return ret;
+}
+
+// _markets returns a map of initialized markets from the configuration file
+std::map<std::string, std::unique_ptr<Market>> _markets(json config)
+{
+    std::map<std::string, std::unique_ptr<Market>> ret;
+    json markets = config["markets"];
+
+    for (json::iterator it = markets.begin(); it != markets.end(); ++it) {
+        switch (_hash(it.key().c_str())) {
+            case _hash("kraken"): {
+                auto value = *it;
+                if (value.find("otp") != value.end()) {
+                    ret.insert(std::pair(
+                        "kraken", std::make_unique<Kraken>(value["apiKey"],
+                                                           value["apiSecret"],
+                                                           value["otp"])));
+                }
+                else {
+                    ret.insert(std::pair(
+                        "kraken", std::make_unique<Kraken>(
+                                      value["apiKey"], value["apiSecret"])));
+                }
+            } break;
+            default:
+                std::stringstream ss;
+                ss << it.key() << " is not a valid key";
+                throw std::runtime_error(ss.str());
+        }
+    }
+
+    return ret;
+}
+
+// _exchanges returns a map of initialized exchanges from the configuration file
+std::map<std::string, std::unique_ptr<Exchange>> _exchanges(json config)
+{
+    std::map<std::string, std::unique_ptr<Exchange>> ret;
+    json exchanges = config["exchanges"];
+
+    for (json::iterator it = exchanges.begin(); it != exchanges.end(); ++it) {
+        switch (_hash(it.key().c_str())) {
+            case _hash("shapeshift"): {
+                auto value = *it;
+                if (value.find("affiliatePrivateKey") != value.end()) {
+                    ret.insert(std::pair(
+                        "shapeshift",
+                        std::make_unique<Shapeshift>(
+                            value["affiliatePrivateKey"].get<std::string>())));
+                }
+            } break;
+            default:
+                std::stringstream ss;
+                ss << it.key() << " is not a valid key";
+                throw std::runtime_error(ss.str());
+        }
+    }
+
+    // Shapeshift is always available because it does not require any
+    // credentials
+    if (ret.find("shapeshift") == ret.end()) {
+        ret.insert(std::pair("shapeshift", std::make_unique<Shapeshift>()));
+    }
+    return ret;
+}
 
 int main()
 {
@@ -64,13 +143,24 @@ int main()
         "percent_change_24h real,"
         "percent_change_7d real)");
 
-    std::ifstream ifconf("config.json");
+    // Parse ./config.json
     json config;
-    ifconf >> config;
+    try {
+        std::ifstream ifconf("config.json");
+        ifconf >> config;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cerr << e.what() << ": missing ./config.json file?" << std::endl;
+        return 1;
+    }
 
-    // If, instead, we're here, we handle the execution of everything, logging
-    // every exception to the error_logger. When an exceptin occurs, log it on
-    // the error_logger, wait for 2 seconds and retry.
+    // From config, instantiate configured markets and exchanges
+    auto markets = _markets(config);
+    auto exchanges = _exchanges(config);
+
+    // If, instead, we're here, we handle the execution of everything,
+    // logging every exception to the error_logger. When an exceptin occurs,
+    // log it on the error_logger, wait for 2 seconds and retry.
     auto error_logger = spdlog::rotating_logger_mt(
         "file_error_logger", "error.log", 1024 * 1024 * 5, 3);
 
@@ -121,6 +211,7 @@ int main()
         }
     };
     // end currencies monitor function
+
     // begin pairs monitor function
     auto pairs_monitor = [&]() {
         console_logger->info("Started paris_monitor thread\nMonitoring: {}",
@@ -162,6 +253,9 @@ int main()
     };
     // end pairs monitor function
 
+    // begin intramarket profit maker
+    auto intramarket_profit_maker = [&]() {};
+    // end intramarket profit maker
     while (true) {
         try {
             // Thread that monitors coinmarketcap and saves infos about
