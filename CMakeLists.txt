@@ -16,6 +16,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 
 set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp-0.8.1")
 set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
+set (RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml-1.13")
 set (SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog-0.14.0")
 set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
 set (GUMBOPARSER "${GUMBO}/parser")
@@ -54,6 +55,8 @@ set (INCLUDES
   ${PROJECT_SOURCE_DIR}/include
   # -I ./libs/nlohmann/ (json.hpp)
   ${JSON}
+  # -I ./libs/rapidxml-1.13 (rapidxml.hpp)
+  ${RAPIDXML}
   # -I ./libs/spdlog-0.14.0/include
   ${SPDLOG}/include
   # -I ./libs/curpp-0.8-1/include
