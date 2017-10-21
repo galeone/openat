@@ -4,30 +4,49 @@
 cmake_minimum_required (VERSION 3.1)
 project (at)
 
-set ( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" )
+#
+# BUILD SETTINGS
+#
 
-set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
-# create compile_commands.json in build dir while compiling
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+# Create compile_commands.json in build dir while compiling
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-set (CMAKE_CXX_STANDARD 17)
+# Set C++17 standard
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+# Set compilation flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 
-set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp")
-set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
-set (RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml")
-set (SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog")
-set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
-set (GTEST "${PROJECT_SOURCE_DIR}/libs/googletest")
-set (GUMBOPARSER "${GUMBO}/parser")
-set (GUMBOQUERY "${GUMBO}/query")
-set (SQLITEPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp")
+#
+# BUILD DEPENDENCIES
+#
+# Build and setup the correct cmake variables for third-party libraries
+#
 
-# Compile curlpp, that uses cmake
+# Build Curlpp
+set(CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp")
+set(CURLPP_INCLUDE_DIR "${CURLPP}/include")
 add_subdirectory(${CURLPP})
 
-# Compile gumbo-parser, that uses autogen
+# Json is a header-only library
+set(JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
+set(JSON_INCLUDE_DIR "${JSON}")
+
+# Spdlog is a header-only library
+set(SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog")
+set(SPDLOG_INCLUDE_DIR "${SPDLOG}/include")
+
+# Rapidxml is a header-only library
+set(RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml")
+set(RAPIDXML_INCLUDE_DIR "${RAPIDXML}")
+
+# GumboParser uses autogen
+set(GUMBOPARSER "${PROJECT_SOURCE_DIR}/libs/gumbo/parser")
+set(GUMBOPARSER_INCLUDE_DIR "${GUMBOPARSER}/include")
+# The compilation creates the include dir ${GUMBOPARSER}/include
+# and the lib dir ${GUMBOPARSER}/lib
 include(ExternalProject)
 ExternalProject_Add(gumbo_parser
     SOURCE_DIR ${GUMBOPARSER}
@@ -36,46 +55,37 @@ ExternalProject_Add(gumbo_parser
     PREFIX ${GUMBOPARSER}
     BUILD_COMMAND ${MAKE}
     BUILD_IN_SOURCE 1)
-# The compilation creates the include dir ${GUMBOPARSER}/include
-# and the lib dir ${GUMBOPARSER}/lib
 
-# Compile gumbo-query that users gumbo and cmake
-set (Gumbo_INCLUDE_DIR "${GUMBOPARSER}/include")
-set (Gumbo_static_LIBRARY "${GUMBOPARSER}/lib/libgumbo.a")
-set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
+
+# Build gumbo-query that uses gumbo and cmake
+set(GUMBOQUERY "${PROJECT_SOURCE_DIR}/libs/gumbo/query")
+set(GUMBOQUERY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/libs/gumbo") # keep structured includes
+# set variables needed by gumboquery cmakelists
+set(Gumbo_INCLUDE_DIR "${GUMBOPARSER_INCLUDE_DIR}")
+set(Gumbo_static_LIBRARY "${GUMBOPARSER}/lib/libgumbo.a")
+set(Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.so")
 if(APPLE)
     set (Gumbo_LIBRARY "${GUMBOPARSER}/lib/libgumbo.dylib")
 endif()
-add_subdirectory(${GUMBOQUERY}) #defines gumbo_query
+add_subdirectory(${GUMBOQUERY})
 
 # Compile and define SQLiteCpp
-add_subdirectory(${SQLITEPP})
+set(SQLITECPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp")
+set(SQLITECPP_INCLUDE_DIR "${SQLITECPP}/include")
+add_subdirectory(${SQLITECPP})
 
-set (INCLUDES
-  # -I ./include
-  ${PROJECT_SOURCE_DIR}/include
-  # -I ./libs/nlohmann/ (json.hpp)
-  ${JSON}
-  # -I ./libs/rapidxml-1.13 (rapidxml.hpp)
-  ${RAPIDXML}
-  # -I ./libs/spdlog-0.14.0/include
-  ${SPDLOG}/include
-  # -I ./libs/curpp-0.8-1/include
-  ${CURLPP}/include
-  # -I ./libs/gumbo/parser/include
-  ${GUMBOPARSER}/include
-  # -I ./libs/gumbo/ #because gumbo-query is badly structured
-  # Instead of having "File.h" included, I prefer to include the whole structure
-  # query/src/File.h
-  ${GUMBO}/
-  # -I /libs/SQLiteCpp-2.1.0/include
-  ${SQLITEPP}/include
-)
-
-include_directories("${INCLUDES}")
-add_subdirectory(src)
-
+# Build googletest
+set(GTEST "${PROJECT_SOURCE_DIR}/libs/googletest")
+set(GTEST_INCLUDE_DIR "${GTEST}/include")
 add_subdirectory(${GTEST})
+
+
+#
+# Build project
+#
+
+set(AT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+add_subdirectory(src)
 add_subdirectory(tests)
 
 # copy compile commands from build dir to project dir once compiled

@@ -9,9 +9,9 @@ find_package(Threads REQUIRED)
 
 add_executable (runUnitTests "${TEST_SRC}")
 include_directories(
-    ${INCLUDES}
+    ${AT_INCLUDE_DIR}
+    ${JSON_INCLUDE_DIR}
     ${gtest_SOURCE_DIR}/include
-    ${gtest_SOURCE_DIR}
 )
 
 target_link_libraries ( runUnitTests LINK_PUBLIC
