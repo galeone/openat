@@ -14,15 +14,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 
-set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp-0.8.1")
+set (CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp")
 set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
-set (RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml-1.13")
-set (SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog-0.14.0")
+set (RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml")
+set (SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog")
 set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
 set (GTEST "${PROJECT_SOURCE_DIR}/libs/googletest")
 set (GUMBOPARSER "${GUMBO}/parser")
 set (GUMBOQUERY "${GUMBO}/query")
-set (SQLITEPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp-2.1.0")
+set (SQLITEPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp")
 
 # Compile curlpp, that uses cmake
 add_subdirectory(${CURLPP})

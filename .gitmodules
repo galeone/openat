@@ -1,0 +1,21 @@
+[submodule "libs/curlpp"]
+	path = libs/curlpp
+	url = https://github.com/jpbarrette/curlpp
+[submodule "libs/gumbo/parser"]
+	path = libs/gumbo/parser
+	url = https://github.com/google/gumbo-parser
+[submodule "libs/gumbo/query"]
+	path = libs/gumbo/query
+	url = https://github.com/lazytiger/gumbo-query
+[submodule "libs/googletest"]
+	path = libs/googletest
+	url = https://github.com/google/googletest
+[submodule "libs/rapidxml"]
+	path = libs/rapidxml
+	url = https://github.com/dwd/rapidxml
+[submodule "libs/spdlog"]
+	path = libs/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "libs/SQLiteCpp"]
+	path = libs/SQLiteCpp
+	url = https://github.com/SRombauts/SQLiteCpp
