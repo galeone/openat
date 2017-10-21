@@ -19,6 +19,7 @@ set (JSON "${PROJECT_SOURCE_DIR}/libs/nlohmann")
 set (RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml-1.13")
 set (SPDLOG "${PROJECT_SOURCE_DIR}/libs/spdlog-0.14.0")
 set (GUMBO "${PROJECT_SOURCE_DIR}/libs/gumbo")
+set (GTEST "${PROJECT_SOURCE_DIR}/libs/googletest")
 set (GUMBOPARSER "${GUMBO}/parser")
 set (GUMBOQUERY "${GUMBO}/query")
 set (SQLITEPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp-2.1.0")
@@ -50,7 +51,7 @@ add_subdirectory(${GUMBOQUERY}) #defines gumbo_query
 # Compile and define SQLiteCpp
 add_subdirectory(${SQLITEPP})
 
-set (INCLUDES 
+set (INCLUDES
   # -I ./include
   ${PROJECT_SOURCE_DIR}/include
   # -I ./libs/nlohmann/ (json.hpp)
@@ -73,6 +74,9 @@ set (INCLUDES
 
 include_directories("${INCLUDES}")
 add_subdirectory(src)
+
+add_subdirectory(${GTEST})
+add_subdirectory(tests)
 
 # copy compile commands from build dir to project dir once compiled
 ADD_CUSTOM_TARGET(do_always ALL COMMAND ${CMAKE_COMMAND} -E copy_if_different
