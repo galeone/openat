@@ -75,3 +75,12 @@ Create the file `config.json` and put it in the same folder of the `at` executab
     }
 }
 ```
+
+## Library test
+
+```
+cd build
+# ID is a test defined by gumbo-query that somehow appears into
+# the tests of the current project. Exclue it using cmame -E (exclude) ID
+ctest -E ID
+```
