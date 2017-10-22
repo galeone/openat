@@ -1,7 +1,14 @@
 # AT
+[![Build Status](https://travis-ci.org/galeone/at.svg?branch=master)](https://travis-ci.org/galeone/at)
 
 
 ## Build
+
+Clone the repository and make sure to clone the submodules too:
+
+```
+git clone --recursive https://github.com/galeone/at
+```
 
 ### Building on UNIX
 
