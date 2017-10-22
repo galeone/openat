@@ -1,4 +1,8 @@
 #include <at/crypt/namespace.hpp>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
+#include <openssl/hmac.h>
+#include <openssl/sha.h>
 
 namespace at::crypt {
 

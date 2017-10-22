@@ -1,7 +1,14 @@
 # AT
+[![Build Status](https://travis-ci.org/galeone/at.svg?branch=master)](https://travis-ci.org/galeone/at)
 
 
 ## Build
+
+Clone the repository and make sure to clone the submodules too:
+
+```
+git clone --recursive https://github.com/galeone/at
+```
 
 ### Building on UNIX
 
@@ -67,4 +74,13 @@ Create the file `config.json` and put it in the same folder of the `at` executab
         }
     }
 }
+```
+
+## Library test
+
+```
+cd build
+# ID is a test defined by gumbo-query that somehow appears into
+# the tests of the current project. Exclue it using cmame -E (exclude) ID
+ctest -E ID
 ```

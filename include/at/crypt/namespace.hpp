@@ -15,10 +15,6 @@
 #ifndef AT_CRYPT_H_
 #define AT_CRYPT_H_
 
-#include <openssl/bio.h>
-#include <openssl/buffer.h>
-#include <openssl/hmac.h>
-#include <openssl/sha.h>
 #include <at/exceptions.hpp>
 #include <string>
 #include <vector>
