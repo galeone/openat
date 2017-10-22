@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 
 # all files .cc in . and its subfolders.
-# define variable CURRENT_SRC
+# define variable TEST_SRC
 file(GLOB_RECURSE TEST_SRC "*.cc")
 
 # Find threads to link next in target_link_libraries
