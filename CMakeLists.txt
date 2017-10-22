@@ -86,7 +86,13 @@ add_subdirectory(${GTEST})
 
 set(AT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 add_subdirectory(src)
+
+#
+# Build tests
+#
+enable_testing()
 add_subdirectory(tests)
+add_test (NAME at_test COMMAND runUnitTests)
 
 # copy compile commands from build dir to project dir once compiled
 ADD_CUSTOM_TARGET(do_always ALL COMMAND ${CMAKE_COMMAND} -E copy_if_different
