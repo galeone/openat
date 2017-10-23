@@ -1,5 +1,5 @@
-# AT
-[![Build Status](https://travis-ci.org/galeone/at.svg?branch=master)](https://travis-ci.org/galeone/at)
+# OpenAT: Open Source Algorithmic Trading Library
+[![Build Status](https://travis-ci.org/galeone/openat.svg?branch=master)](https://travis-ci.org/galeone/openat)
 
 
 ## Build
@@ -7,7 +7,7 @@
 Clone the repository and make sure to clone the submodules too:
 
 ```
-git clone --recursive https://github.com/galeone/at
+git clone --recursive https://github.com/galeone/openat
 ```
 
 ### Building on UNIX
@@ -48,35 +48,7 @@ CC=gcc-7 CXX=g++-7 cmake \
     -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl@1.1/lib/libcrypto.dylib ..
 make
 ```
-
-## Configuration
-
-Create the file `config.json` and put it in the same folder of the `at` executable.
-`config.json` should look like:
-
-```json
-{
-    "monitor": {
-        "currencies": ["btc", "xrp", "eth", "ltc", "xmr"],
-        "pairs": [
-            ["btc", "usd"],
-            ["xrp", "usd"],
-            ["eth", "btc"],
-            ["ltc", "btc"],
-            ["xmr", "usd"]
-        ]
-    },
-    "markets": {
-        "kraken": {
-            "apiKey": "",
-            "apiSecret": "",
-            "otp": ""
-        }
-    }
-}
-```
-
-## Library test
+## Test
 
 ```
 cd build
