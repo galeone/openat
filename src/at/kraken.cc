@@ -108,6 +108,9 @@ json Kraken::_request(std::string method,
     auto path = "/" + _version + "/" + private_method;
     auto nonce = _nonce();
     params.push_back({"nonce", nonce});
+    if (_otp != "") {
+        params.push_back({"otp", _otp});
+    }
 
     std::list<std::string> headers;
     headers.push_back("API-Key: " + _api_key);
@@ -399,4 +402,4 @@ void Kraken::cancel(order_t& order)
     order = {};
 }
 
-}  // end at namespace
+}  // namespace at

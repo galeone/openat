@@ -45,7 +45,7 @@ private:
     const std::string _version = "0";
     const std::string _host = "https://api.kraken.com/" + _version + "/";
     const std::string _api_key, _api_secret;
-    const std::string _otp;
+    std::string _otp;
     std::vector<std::string> _available_symbols;
 
     const std::map<std::string, double> _minimumLimits = {
@@ -95,6 +95,9 @@ public:
     {
     }
     ~Kraken() {}
+
+    /* Set/Update OTP for private requests when 2FA is enabled */
+    void set_otp(std::string otp) { _otp = otp; }
 
     /* Get server time
      * URL: https://api.kraken.com/0/public/Time
