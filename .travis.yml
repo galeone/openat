@@ -27,4 +27,4 @@ install:
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
 
 script:
-    - mkdir build && cd build && cmake .. && make
+    - mkdir build && cd build && cmake .. && make && ctest -E ID
