@@ -6,7 +6,7 @@
 	url = https://github.com/google/googletest
 [submodule "libs/rapidxml"]
 	path = libs/rapidxml
-	url = https://github.com/dwd/rapidxml
+	url = https://github.com/galeone/rapidxml
 [submodule "libs/spdlog"]
 	path = libs/spdlog
 	url = https://github.com/gabime/spdlog
