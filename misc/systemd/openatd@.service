@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenAT daemon - collecting market data for %i
+Documentation=https://github.com/galeone/openat/tree/master/src
+Wants=network-online.target
+After=network-online.target
+ 
+[Service]
+Type=simple
+User=%I
+WorkingDirectory=/home/%i/.config/openat/
+ExecStart=/usr/local/bin/openatd
+Restart=on-failure
+RestartSec=120
+ 
+[Install]
+WantedBy=multi-user.target

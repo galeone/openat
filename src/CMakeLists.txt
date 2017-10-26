@@ -36,13 +36,13 @@ target_link_libraries (at LINK_PUBLIC
 # Find packages required by main
 find_package(Sqlite3 REQUIRED)
 # Add "main" target; compile as executable
-add_executable (main "main.cc")
+add_executable (openatd "main.cc")
 include_directories(
     ${AT_INCLUDE_DIR}
     ${SQLITE3_INCLUDE_DIRS}
     ${SQLITECPP_INCLUDE_DIR}
 )
-target_link_libraries ( main LINK_PUBLIC
+target_link_libraries (openatd LINK_PUBLIC
     at
     SQLiteCpp # defined in CMakeLists of libs/SQLiteCpp
     ${SQLITE3_LIBRARIES}
