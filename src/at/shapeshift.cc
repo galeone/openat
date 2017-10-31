@@ -104,38 +104,21 @@ json Shapeshift::recentTransaction(uint32_t max)
     return res;
 }
 
-status_t Shapeshift::depositStatus(hash_t address)
+deposit_status_t Shapeshift::depositStatus(hash_t address)
 {
     Request req;
     json res = req.get(_host + "txStat/" + address);
     _throw_error_if_any(res);
-    std::string status = res.at("status").get<std::string>();
-    if (status == "complete") {
-        return status_t::complete;
-    }
-    if (status == "received") {
-        return status_t::received;
-    }
-    if (status == "no_deposits") {
-        return status_t::no_deposists;
-    }
-
-    return status_t::failed;
+    return res.at("status").get<deposit_status_t>();
 }
-std::pair<status_t, uint32_t> Shapeshift::timeRemeaningForTransaction(
+std::pair<deposit_status_t, uint32_t> Shapeshift::timeRemeaningForTransaction(
     hash_t address)
 {
     Request req;
     json res = req.get(_host + "timeremaining/" + address);
     _throw_error_if_any(res);
-
-    std::string status = res["status"];
-    status_t s = status_t::expired;
-    if (status == "pending") {
-        s = status_t::pending;
-    }
-
-    return std::pair(s, res.at("seconds_remaining").get<uint32_t>());
+    return std::pair(res["status"].get<deposit_status_t>(),
+                     res.at("seconds_remaining").get<uint32_t>());
 }
 
 std::map<std::string, coin_t> Shapeshift::coins()
@@ -193,7 +176,7 @@ hash_t Shapeshift::shift(currency_pair_t pair, hash_t return_addr,
     Request req;
     json res = req.post(_host + "shift", data);
     _throw_error_if_any(res);
-    return hash_t(res["deposit"]);
+    return hash_t(res["deposit"].get<std::string>());
 }
 
 hash_t Shapeshift::shift(currency_pair_t pair, hash_t return_addr,
@@ -206,7 +189,7 @@ hash_t Shapeshift::shift(currency_pair_t pair, hash_t return_addr,
     Request req;
     json res = req.post(_host + "sendamount", data);
     _throw_error_if_any(res);
-    return hash_t(res["success"]["deposit"]);
+    return hash_t(res["success"]["deposit"].get<std::string>());
 }
 
 json Shapeshift::quotedPrice(currency_pair_t pair, double amount)
@@ -238,7 +221,8 @@ bool Shapeshift::sendReceipt(std::string email, hash_t txid)
     json data = {{"email", email}, {"txid", txid}};
     json res = req.post(_host + "mail", data);
     _throw_error_if_any(res);
-    return res.at("status").get<std::string>() == "success";
+    return res.at("status").get<deposit_status_t>() ==
+           deposit_status_t::complete;
 }
 
-}  // end at namespace
+}  // namespace at

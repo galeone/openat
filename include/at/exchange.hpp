@@ -49,8 +49,8 @@ public:
 
     virtual deposit_limit_t depositLimit(currency_pair_t) = 0;
     virtual json recentTransaction(uint32_t) = 0;
-    virtual status_t depositStatus(hash_t) = 0;
-    virtual std::pair<status_t, uint32_t> timeRemeaningForTransaction(
+    virtual deposit_status_t depositStatus(hash_t) = 0;
+    virtual std::pair<deposit_status_t, uint32_t> timeRemeaningForTransaction(
         hash_t) = 0;
     virtual std::map<std::string, coin_t> coins() = 0;
 };

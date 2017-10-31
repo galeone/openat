@@ -203,7 +203,7 @@ inline void from_json(const json& j, market_info_t& m)
     }
 }
 
-enum class status_t : char {
+enum class deposit_status_t : char {
     no_deposists = 'a',
     initial,   // initial
     received,  // received
@@ -215,27 +215,115 @@ enum class status_t : char {
     expired,   // experied
 };
 
-inline std::ostream& operator<<(std::ostream& o, const status_t& s)
+inline std::ostream& operator<<(std::ostream& o, const deposit_status_t& s)
 {
     switch (s) {
-        case status_t::no_deposists:
+        case deposit_status_t::no_deposists:
             return o << "no_deposists";
-        case status_t::initial:
+        case deposit_status_t::initial:
             return o << "initial";
-        case status_t::received:
+        case deposit_status_t::received:
             return o << "received";
-        case status_t::complete:
+        case deposit_status_t::complete:
             return o << "complete";
-        case status_t::settled:
+        case deposit_status_t::settled:
             return o << "settled";
-        case status_t::pending:
+        case deposit_status_t::pending:
             return o << "pending";
-        case status_t::failed:
+        case deposit_status_t::failed:
             return o << "failed";
-        case status_t::partial:
+        case deposit_status_t::partial:
             return o << "partial";
         default:
             return o << "expired";
+    }
+}
+
+inline void to_json(json& j, const deposit_status_t& s)
+{
+    std::stringstream o;
+    o << s;
+    j = json{o.str()};
+}
+inline void from_json(const json& j, deposit_status_t& s)
+{
+    auto val = j.get<std::string>();
+    if (val == "no_deposists") {
+        s = deposit_status_t::no_deposists;
+    }
+    else if (val == "initial") {
+        s = deposit_status_t::initial;
+    }
+    else if (val == "received") {
+        s = deposit_status_t::received;
+    }
+    else if (val == "complete" or val == "success") {
+        s = deposit_status_t::complete;
+    }
+    else if (val == "settled") {
+        s = deposit_status_t::settled;
+    }
+    else if (val == "pending") {
+        s = deposit_status_t::pending;
+    }
+    else if (val == "failed") {
+        s = deposit_status_t::failed;
+    }
+    else if (val == "partial") {
+        s = deposit_status_t::partial;
+    }
+    else {
+        s = deposit_status_t::expired;
+    }
+}
+
+enum class tx_status_t : char {
+    pending = 'A',  // order pending book entry
+    open,           // open order
+    closed,         // closed order
+    canceled,       // order canceled
+    expired,        // order expired
+};
+
+inline std::ostream& operator<<(std::ostream& o, const tx_status_t& s)
+{
+    switch (s) {
+        case tx_status_t::pending:
+            return o << "pending";
+        case tx_status_t::open:
+            return o << "open";
+        case tx_status_t::closed:
+            return o << "closed";
+        case tx_status_t::canceled:
+            return o << "canceled";
+        default:
+            return o << "expired";
+    }
+}
+
+inline void to_json(json& j, const tx_status_t& s)
+{
+    std::stringstream o;
+    o << s;
+    j = json{o.str()};
+}
+inline void from_json(const json& j, tx_status_t& s)
+{
+    auto val = j.get<std::string>();
+    if (val == "pending") {
+        s = tx_status_t::pending;
+    }
+    else if (val == "open") {
+        s = tx_status_t::open;
+    }
+    else if (val == "closed") {
+        s = tx_status_t::closed;
+    }
+    else if (val == "canceled") {
+        s = tx_status_t::canceled;
+    }
+    else {
+        s = tx_status_t::expired;
     }
 }
 
@@ -251,8 +339,8 @@ typedef struct {
 } ticker_t;
 
 typedef struct {
-    hash_t txid;            // transaction ID
-    std::string status;     // open, closed, cancelled
+    hash_t txid;  // transaction ID
+    tx_status_t status;
     std::string ordertype;  // limit & co
     std::string type;       // buy/sell
     currency_pair_t pair;
@@ -268,7 +356,8 @@ typedef struct {
     std::string inputTXID, inputAddress, inputCurrency;
     double inputAmount;
     std::string outputTXID, outputAddress, outputCurrency, outputAmount,
-        shiftRate, status;
+        shiftRate;
+    tx_status_t status;
 } shapeshift_tx_t;
 
 inline void to_json(json& j, const shapeshift_tx_t& t)
@@ -297,7 +386,7 @@ inline void from_json(const json& j, shapeshift_tx_t& t)
     t.outputAmount = j.at("outputAmount").get<std::string>();
 
     t.shiftRate = j.at("shiftRate").get<std::string>();
-    t.status = j.at("status").get<std::string>();
+    t.status = j.at("status").get<tx_status_t>();
 }
 
 // Cumulative Ticker

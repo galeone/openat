@@ -343,7 +343,7 @@ std::vector<order_t> Kraken::closedOrders()
         auto row = it.value();
         order_t order;
         order.txid = it.key();
-        order.status = row.at("status").get<std::string>();
+        order.status = row.at("status").get<tx_status_t>();
         order.open = row.at("opentm").get<double>();
         order.close = row.at("closetm").get<double>();
         order.pair = _str2pair(row["descr"]["pair"].get<std::string>());

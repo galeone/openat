@@ -77,7 +77,7 @@ public:
 
     /* This returns the status of the most recent deposit transaction to the
      * address. */
-    status_t depositStatus(hash_t) override;
+    deposit_status_t depositStatus(hash_t) override;
 
     /* When a transaction is created with a fixed amount requested there is a 10
      * minute window for the deposit. After the 10 minute window if the deposit
@@ -89,7 +89,8 @@ public:
      * sending it in as a param, to get a successful response.
      *
      * hash_t is the deposit address to look up. */
-    std::pair<status_t, uint32_t> timeRemeaningForTransaction(hash_t) override;
+    std::pair<deposit_status_t, uint32_t> timeRemeaningForTransaction(
+        hash_t) override;
 
     /* Allows anyone to get a list of all the currencies that Shapeshift
      * currently supports at any given time. The list will include the name,
