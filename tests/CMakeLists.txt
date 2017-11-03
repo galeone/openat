@@ -7,14 +7,14 @@ file(GLOB_RECURSE TEST_SRC "*.cc")
 # Find threads to link next in target_link_libraries
 find_package(Threads REQUIRED)
 
-add_executable (runUnitTests "${TEST_SRC}")
+add_executable (openat_tests "${TEST_SRC}")
 include_directories(
-    ${AT_INCLUDE_DIR}
+    ${OPENAT_INCLUDE_DIR}
     ${JSON_INCLUDE_DIR}
-    ${gtest_SOURCE_DIR}/include
+    ${GTEST_INCLUDE_DIR}
 )
 
-target_link_libraries ( runUnitTests LINK_PUBLIC
-    at
+target_link_libraries ( openat_tests LINK_PUBLIC
+    openat
     gtest
 )

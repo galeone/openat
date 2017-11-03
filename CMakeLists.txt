@@ -1,8 +1,5 @@
-# CMakeLists files in this project can
-# refer to the root source directory of the project as ${AUTOT_SOURCE_DIR} and
-# to the root binary directory of the project as ${AUTOT_BINARY_DIR}.
 cmake_minimum_required (VERSION 3.1)
-project (at)
+project (openat VERSION 1.0.0 DESCRIPTION "OpenAT: Open Source Algorithmic Trading Library")
 
 #
 # BUILD SETTINGS
@@ -24,6 +21,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 #
 # Build and setup the correct cmake variables for third-party libraries
 #
+
+# Enable ExternalProject CMake module
+include(ExternalProject)
 
 # Build Curlpp
 set(CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp")
@@ -47,7 +47,6 @@ set(GUMBOPARSER "${PROJECT_SOURCE_DIR}/libs/gumbo/parser")
 set(GUMBOPARSER_INCLUDE_DIR "${GUMBOPARSER}/include")
 # The compilation creates the include dir ${GUMBOPARSER}/include
 # and the lib dir ${GUMBOPARSER}/lib
-include(ExternalProject)
 ExternalProject_Add(gumbo_parser
     SOURCE_DIR ${GUMBOPARSER}
     # Compile gumbo-parser
@@ -69,32 +68,32 @@ if(APPLE)
 endif()
 add_subdirectory(${GUMBOQUERY})
 
-# Compile and define SQLiteCpp
-set(SQLITECPP "${PROJECT_SOURCE_DIR}/libs/SQLiteCpp")
-set(SQLITECPP_INCLUDE_DIR "${SQLITECPP}/include")
-add_subdirectory(${SQLITECPP})
+#
+# Build project
+#
+
+set(OPENAT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+add_subdirectory(src)
+# Allows include directories outside this CMake
+set( OPENAT_REQUIRED_INCLUDES ${OPENAT_REQUIRED_INCLUDES} PARENT_SCOPE )
+
+#
+# Build tests
+#
+enable_testing()
 
 # Build googletest
 set(GTEST "${PROJECT_SOURCE_DIR}/libs/googletest")
 set(GTEST_INCLUDE_DIR "${GTEST}/include")
 add_subdirectory(${GTEST})
 
-
-#
-# Build project
-#
-
-set(AT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
-add_subdirectory(src)
-
-#
-# Build tests
-#
-enable_testing()
 add_subdirectory(tests)
-add_test (NAME at_test COMMAND runUnitTests)
+add_test (NAME openat_tests COMMAND openat_tests)
 
-# copy compile commands from build dir to project dir once compiled
-ADD_CUSTOM_TARGET(do_always ALL COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    ${PROJECT_SOURCE_DIR}/compile_commands.json)
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(NOT hasParent)
+    # copy compile commands from build dir to project dir once compiled
+    ADD_CUSTOM_TARGET(openat_do_always ALL COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+        ${PROJECT_SOURCE_DIR}/compile_commands.json)
+endif()
