@@ -330,7 +330,7 @@ inline void from_json(const json& j, tx_status_t& s)
 typedef struct {
     double price;
     double amount;
-    time_t time;
+    std::time_t time;
 } quotation_t;
 
 typedef struct {
@@ -344,8 +344,8 @@ typedef struct {
     std::string ordertype;  // limit & co
     std::string type;       // buy/sell
     currency_pair_t pair;
-    time_t open;
-    time_t close;
+    std::time_t open;
+    std::time_t close;
     double volume;
     double cost;
     double fee;
@@ -415,6 +415,7 @@ typedef struct {
     double day_volume_btc;
     double price_usd, price_btc;
     float percent_volume;
+    std::time_t last_updated;
 } cm_market_t;
 
 inline void to_json(json& j, const gm_data_t& t)
