@@ -20,6 +20,7 @@
 #include <at/exceptions.hpp>
 #include <at/market.hpp>
 #include <at/types.hpp>
+#include <chrono>
 
 namespace at {
 

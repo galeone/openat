@@ -73,6 +73,8 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
 
     std::vector<cm_market_t> ret;
     CSelection rows = table.nodeAt(0).find("tr");
+    auto now =
+        std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     for (size_t i = 0; i < rows.nodeNum(); ++i) {
         CNode row = rows.nodeAt(i);
         CSelection fields = row.find("td");
@@ -123,6 +125,7 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
             .price_usd = price_usd,
             .price_btc = price_btc,
             .percent_volume = percent_volume,
+            .last_updated = now,
         };
         ret.push_back(market);
     }
@@ -130,4 +133,4 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
     return ret;
 }
 
-}  // end at namespace
+}  // namespace at
