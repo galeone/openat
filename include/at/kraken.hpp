@@ -139,6 +139,9 @@ public:
     /* This get the complete closed orders */
     std::vector<order_t> closedOrders() override;
 
+    /* This get the complete open orders */
+    std::vector<order_t> openOrders() override;
+
     /* This adds an order using only the meaningful fields of order and filling
      * the remeaning fields once the order has been placed */
     void place(order_t&) override;

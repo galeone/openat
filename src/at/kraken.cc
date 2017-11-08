@@ -358,6 +358,32 @@ std::vector<order_t> Kraken::closedOrders()
     return ret;
 }
 
+std::vector<order_t> Kraken::openOrders()
+{
+    json res = _request("OpenOrders", {});
+    _throw_error_if_any(res);
+    res = res["result"]["open"];
+    std::vector<order_t> ret;
+
+    for (auto it = res.begin(); it != res.end(); it++) {
+        auto row = it.value();
+        order_t order;
+        order.txid = it.key();
+        order.status = row.at("status").get<tx_status_t>();
+        order.open = row.at("opentm").get<double>();
+        order.close = 0;
+        order.pair = _str2pair(row["descr"]["pair"].get<std::string>());
+        order.type = row["descr"]["type"].get<std::string>();
+        order.ordertype = row["descr"]["ordertype"].get<std::string>();
+        order.volume = std::stod(row.at("vol").get<std::string>());
+        order.cost = std::stod(row.at("cost").get<std::string>());
+        order.fee = std::stod(row.at("fee").get<std::string>());
+        order.price = std::stod(row["descr"]["price"].get<std::string>());
+        ret.push_back(order);
+    }
+    return ret;
+}
+
 void Kraken::place(order_t& order)
 {
     _sanitize_pair(order.pair);
