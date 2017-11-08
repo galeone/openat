@@ -74,8 +74,12 @@ add_subdirectory(${GUMBOQUERY})
 
 set(OPENAT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 add_subdirectory(src)
-# Allows include directories outside this CMake
-set( OPENAT_REQUIRED_INCLUDES ${OPENAT_REQUIRED_INCLUDES} PARENT_SCOPE )
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+# Allows include directories outside this CMake, if it has been included
+if(hasParent)
+    set( OPENAT_REQUIRED_INCLUDES ${OPENAT_REQUIRED_INCLUDES} PARENT_SCOPE )
+endif()
 
 #
 # Build tests
@@ -90,7 +94,6 @@ add_subdirectory(${GTEST})
 add_subdirectory(tests)
 add_test (NAME openat_tests COMMAND openat_tests)
 
-get_directory_property(hasParent PARENT_DIRECTORY)
 if(NOT hasParent)
     # copy compile commands from build dir to project dir once compiled
     ADD_CUSTOM_TARGET(openat_do_always ALL COMMAND ${CMAKE_COMMAND} -E copy_if_different
