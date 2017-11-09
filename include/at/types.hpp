@@ -82,6 +82,11 @@ public:
     {
         return str() < pair.str();
     }
+
+    bool operator==(const currency_pair_t& pair) const
+    {
+        return str() == pair.str();
+    }
 };
 
 // overload of << between ostream and currency_pair_t
