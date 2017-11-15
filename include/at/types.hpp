@@ -319,6 +319,7 @@ inline void to_json(json& j, const tx_status_t& s)
 inline void from_json(const json& j, tx_status_t& s)
 {
     auto val = j.get<std::string>();
+    tolower(val);
     if (val == "pending") {
         s = tx_status_t::pending;
     }
@@ -336,6 +337,76 @@ inline void from_json(const json& j, tx_status_t& s)
     }
 }
 
+enum class order_action_t : char {
+    buy = 'B',
+    sell,
+};
+
+inline std::ostream& operator<<(std::ostream& o, const order_action_t& t)
+{
+    switch (t) {
+        case order_action_t::buy:
+            return o << "buy";
+        case order_action_t::sell:
+            return o << "sell";
+    }
+    return o << "error";
+}
+
+inline void to_json(json& j, const order_action_t& t)
+{
+    std::stringstream o;
+    o << t;
+    j = json{o.str()};
+}
+
+inline void from_json(const json& j, order_action_t& t)
+{
+    auto val = j.get<std::string>();
+    tolower(val);
+    if (val == "buy") {
+        t = order_action_t::buy;
+    }
+    else if (val == "sell") {
+        t = order_action_t::sell;
+    }
+}
+
+enum class order_type_t : char {
+    limit = 'L',
+    market,
+};
+
+inline std::ostream& operator<<(std::ostream& o, const order_type_t& t)
+{
+    switch (t) {
+        case order_type_t::limit:
+            return o << "limit";
+        case order_type_t::market:
+            return o << "market";
+    }
+    return o << "error";
+}
+
+inline void to_json(json& j, const order_type_t& t)
+{
+    std::stringstream o;
+    o << t;
+    j = json{o.str()};
+}
+
+inline void from_json(const json& j, order_type_t& t)
+{
+    auto val = j.get<std::string>();
+    tolower(val);
+    if (val == "limit") {
+        t = order_type_t::limit;
+    }
+    else if (val == "market") {
+        t = order_type_t::market;
+    }
+}
+
 typedef struct {
     double price;
     double amount;
@@ -350,8 +421,8 @@ typedef struct {
 typedef struct {
     hash_t txid;  // transaction ID
     tx_status_t status;
-    std::string ordertype;  // limit & co
-    std::string type;       // buy/sell
+    order_type_t type;      // market/limit
+    order_action_t action;  // buy/sell
     currency_pair_t pair;
     std::time_t open;
     std::time_t close;

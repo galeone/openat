@@ -347,8 +347,8 @@ std::vector<order_t> Kraken::closedOrders()
         order.open = row.at("opentm").get<double>();
         order.close = row.at("closetm").get<double>();
         order.pair = _str2pair(row["descr"]["pair"].get<std::string>());
-        order.type = row["descr"]["type"].get<std::string>();
-        order.ordertype = row["descr"]["ordertype"].get<std::string>();
+        order.action = row["descr"]["type"].get<at::order_action_t>();
+        order.type = row["descr"]["ordertype"].get<at::order_type_t>();
         order.volume = std::stod(row.at("vol_exec").get<std::string>());
         order.cost = std::stod(row.at("cost").get<std::string>());
         order.fee = std::stod(row.at("fee").get<std::string>());
@@ -373,8 +373,8 @@ std::vector<order_t> Kraken::openOrders()
         order.open = row.at("opentm").get<double>();
         order.close = 0;
         order.pair = _str2pair(row["descr"]["pair"].get<std::string>());
-        order.type = row["descr"]["type"].get<std::string>();
-        order.ordertype = row["descr"]["ordertype"].get<std::string>();
+        order.action = row["descr"]["type"].get<at::order_action_t>();
+        order.type = row["descr"]["ordertype"].get<at::order_type_t>();
         order.volume = std::stod(row.at("vol").get<std::string>());
         order.cost = std::stod(row.at("cost").get<std::string>());
         order.fee = std::stod(row.at("fee").get<std::string>());
@@ -387,32 +387,32 @@ std::vector<order_t> Kraken::openOrders()
 void Kraken::place(order_t& order)
 {
     _sanitize_pair(order.pair);
-    if (order.type.empty()) {
-        throw std::runtime_error("order.type can't be empty: BUY/SELL");
-    }
-    if (order.ordertype.empty()) {
-        throw std::runtime_error(
-            "order.ordertype can't be empty: limit/market");
-    }
     std::vector<std::pair<std::string, std::string>> params;
     params.push_back({"pair", order.pair.first + order.pair.second});
-    params.push_back({"type", order.type});
-    params.push_back({"ordertype", order.ordertype});
+    std::stringstream ss;
+    ss << order.action;
+    params.push_back({"type", ss.str()});
+    ss.str("");
+    ss.clear();
+    ss << order.type;
+    params.push_back({"ordertype", ss.str()});
     params.push_back({"volume", std::to_string(order.volume)});
 
-    auto ordertype = order.ordertype;
-    toupper(ordertype);
-    if (ordertype == "MARKET") {
-        if (order.volume <= 0) {
-            throw std::runtime_error("order.volume can't be <= 0");
+    switch (order.type) {
+        case at::order_type_t::market: {
+            if (order.volume <= 0) {
+                throw std::runtime_error("order.volume can't be <= 0");
+            }
+            break;
         }
-    }
-    else {
-        if (order.volume * order.price <= 0) {
-            throw std::runtime_error(
-                "order.volume * order.price can't be <= 0");
+        case at::order_type_t::limit: {
+            if (order.volume * order.price <= 0) {
+                throw std::runtime_error(
+                    "order.volume * order.price can't be <= 0");
+            }
+            params.push_back({"price", std::to_string(order.price)});
+            break;
         }
-        params.push_back({"price", std::to_string(order.price)});
     }
 
     json res = _request("AddOrder", params);
