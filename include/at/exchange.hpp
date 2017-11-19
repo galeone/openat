@@ -47,7 +47,7 @@ public:
      * for the spcified pair. */
     virtual exchange_info_t info(currency_pair_t) = 0;
 
-    virtual deposit_limit_t depositLimit(currency_pair_t) = 0;
+    virtual min_max_t depositLimit(currency_pair_t) = 0;
     virtual json recentTransaction(uint32_t) = 0;
     virtual deposit_status_t depositStatus(hash_t) = 0;
     virtual std::pair<deposit_status_t, uint32_t> timeRemeaningForTransaction(

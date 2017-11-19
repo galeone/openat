@@ -26,11 +26,7 @@ namespace at {
 
 class Market {
 public:
-    // Only common methods among markets
-    // List defined using shapeshift.io API
-    // skipping methods that use private keys
-    // or are shapeshift specific (to define in a specific
-    // market implementation class)
+    // Only common methods in markets
     virtual ~Market() {}
 
     // Pure virtual methods

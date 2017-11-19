@@ -126,20 +126,20 @@ inline void from_json(const json& j, coin_t& c)
 typedef struct {
     double min;
     double max;
-} deposit_limit_t;
+} min_max_t;
 
-inline void to_json(json& j, const deposit_limit_t& d)
+inline void to_json(json& j, const min_max_t& d)
 {
     j = json{{"min", d.min}, {"max", d.max}};
 }
-inline void from_json(const json& j, deposit_limit_t& d)
+inline void from_json(const json& j, min_max_t& d)
 {
     d.min = j.at("min").get<double>();
     d.max = j.at("max").get<double>();
 }
 
 typedef struct {
-    deposit_limit_t limit;
+    min_max_t limit;
     double fee;
     std::string currency;
     std::string method;
@@ -163,7 +163,7 @@ inline void from_json(const json& j, deposit_info_t& d)
 
 typedef struct {
     currency_pair_t pair;
-    deposit_limit_t limit;
+    min_max_t limit;
     double rate;
     double miner_fee;
 } exchange_info_t;
@@ -176,7 +176,7 @@ inline void to_json(json& j, const exchange_info_t& m)
 }
 inline void from_json(const json& j, exchange_info_t& m)
 {
-    m.limit = j.at("limit").get<deposit_limit_t>();
+    m.limit = j.at("limit").get<min_max_t>();
     m.rate = j.at("rate").get<double>();
     m.miner_fee = j.at("miner_fee").get<double>();
     auto pair_str = j.at("pair").get<std::string>();
@@ -189,7 +189,7 @@ inline void from_json(const json& j, exchange_info_t& m)
 
 typedef struct {
     currency_pair_t pair;
-    deposit_limit_t limit;
+    min_max_t limit;
     double maker_fee, taker_fee;
 } market_info_t;
 inline void to_json(json& j, const market_info_t& m)
@@ -201,7 +201,7 @@ inline void to_json(json& j, const market_info_t& m)
 }
 inline void from_json(const json& j, market_info_t& m)
 {
-    m.limit = j.at("limit").get<deposit_limit_t>();
+    m.limit = j.at("limit").get<min_max_t>();
     m.maker_fee = j.at("maker_fee").get<double>();
     m.taker_fee = j.at("taker_fee").get<double>();
     auto pair_str = j.at("pair").get<std::string>();

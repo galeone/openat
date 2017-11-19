@@ -59,7 +59,7 @@ public:
      * otherwise the user will need to contact ShapeShift support to retrieve
      * their coins. This is an estimate because a sudden market swing could move
      * the limit. */
-    deposit_limit_t depositLimit(currency_pair_t) override;
+    min_max_t depositLimit(currency_pair_t) override;
 
     /* This gets the exchange info (pair, rate, limit, minimum limit, miner
      * fee).

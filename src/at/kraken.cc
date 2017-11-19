@@ -175,9 +175,8 @@ std::vector<market_info_t> Kraken::info()
 
         markets.push_back(market_info_t{
             .pair = currency_pair_t(market["base"], market["quote"]),
-            .limit =
-                deposit_limit_t{.min = _minTradable(market["base"]),
-                                .max = std::numeric_limits<double>::infinity()},
+            .limit = min_max_t{.min = _minTradable(market["base"]),
+                               .max = std::numeric_limits<double>::infinity()},
             .maker_fee = market["fees_maker"][0][1].get<double>(),  // low
             .taker_fee = market["fees"][0][1].get<double>()});      // high
     }
@@ -200,9 +199,8 @@ market_info_t Kraken::info(currency_pair_t pair)
 
     return market_info_t{
         .pair = pair,
-        .limit =
-            deposit_limit_t{.min = _minTradable(market["base"]),
-                            .max = std::numeric_limits<double>::infinity()},
+        .limit = min_max_t{.min = _minTradable(market["base"]),
+                           .max = std::numeric_limits<double>::infinity()},
         .maker_fee = market["fees_maker"][0][1].get<double>(),
         .taker_fee = market["fees"][0][1].get<double>()};
 }
@@ -223,7 +221,7 @@ deposit_info_t Kraken::depositInfo(std::string currency)
         // if here, limit = false = no limits
     }
     return deposit_info_t{
-        .limit = deposit_limit_t{.min = _minTradable(currency), .max = limit},
+        .limit = min_max_t{.min = _minTradable(currency), .max = limit},
         .fee = std::stod(res.at("fee").get<std::string>()),
         .currency = currency,
         .method = res.at("method").get<std::string>(),

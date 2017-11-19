@@ -28,7 +28,7 @@ double Shapeshift::rate(currency_pair_t pair)
     return std::stod(res.at("rate").get<std::string>());
 }
 
-deposit_limit_t Shapeshift::depositLimit(currency_pair_t pair)
+min_max_t Shapeshift::depositLimit(currency_pair_t pair)
 {
     Request req;
     std::ostringstream url;
@@ -38,7 +38,7 @@ deposit_limit_t Shapeshift::depositLimit(currency_pair_t pair)
     json res = req.get(url.str());
     _throw_error_if_any(res);
     // {"limit":"1.81514557","min":"0.000821","pair":"btc_eth"}
-    return deposit_limit_t{
+    return min_max_t{
         .min = std::stod(res.at("min").get<std::string>()),
         .max = std::stod(res.at("limit").get<std::string>())};
 }
@@ -59,7 +59,7 @@ std::vector<exchange_info_t> Shapeshift::info()
             markets.push_back(exchange_info_t{
                 .pair = pair,
                 .limit =
-                    deposit_limit_t{.min = market.at("min").get<double>(),
+                    min_max_t{.min = market.at("min").get<double>(),
                                     .max = market.at("limit").get<double>()},
                 .rate = std::stod(
                     market.at("rate").get<std::string>()),  // rate is a string
@@ -86,7 +86,7 @@ exchange_info_t Shapeshift::info(currency_pair_t pair)
     return exchange_info_t{
         .pair = pair,
         .limit =
-            deposit_limit_t{
+            min_max_t{
                 .min = market.at("minimum")
                            .get<double>(),  // minumum instead of min
                 .max = market.at("limit").get<double>()},
