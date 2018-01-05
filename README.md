@@ -7,13 +7,15 @@ The aim is to give to the user the possibility to build it's own generic (crypto
 
 OpenAT is divided in 3 different parts:
 
-1. Market: place/cancel orders, monitor order book, access history of placed/cancelled orders, global balance, balance per coin, ...
-2. Global market data monitoring: crypto currency price, volume, markets, fiat value, ...
-3. Exchange: change a currency for another currency without defining the price (shapeshift like)
+1. **Market**: place/cancel orders, monitor order book, access history of placed/cancelled orders, global balance, balance per coin, ...
+2. **Global market data monitoring**: crypto currency price, volume, markets, fiat value, ...
+3. **Exchange**: change a currency for another currency without defining the price (shapeshift like)
 
 Everything using a strong typing system: every request returns a well defined type, the request to the markets are created using C++ structure: you will never fill a JSON field manually.
 
-Have a look at (`types.hpp`)[https://github.com/galeone/openat/blob/master/include/at/types.hpp].
+Have a look at [`types.hpp`](https://github.com/galeone/openat/blob/master/include/at/types.hpp).
+
+[This project is in early stage and needs your help!](https://github.com/galeone/openat#contributing)
 
 ## Examples
 
@@ -344,7 +346,7 @@ With more implementation with can easily write trading bot for arbitrage in the 
 2. **Add data sources**: coinmarketcap is a good data source and it works well. But we can try to make OpenAT smarter, collecting any other data that talks about crypto currencies (just think, train a ML model with the stream of collected tweets and news feed... we can do sentiment analysis and many other cool things: a lot of (high quality) data is everything.
 3. **Improve the documentation**: at the time of writing, the only documentation is the README and the comments in the header files. We can do better.
 4. **Unit test**: test the server response it's something hard (especially when you work with idiotic APIs like the shapeshift ones, where a field change it's type from request to reuest): we have to create a mock server and test everything.
-5. **OMG you're using double and not integers everywere!**: yes you're right. But since OpenAT basically collects data and send request to API that accepts JSON, using doubles and integer change nothing (you have to convert the data to a string in every case). But if you want to change OpenAT making it use integer and the information about the number of meaningful digits you're welcome.
+5. **OMG you're using double and not integers everywere!**: yes you're right. But since OpenAT basically collects data and send request to API that accepts JSON, using doubles and integer changes nothing (you have to convert the data to a string in every case). But if you want to change OpenAT making it use integer and the information about the number of meaningful digits you're welcome.
 
 Also, if you want to donate instead of contributing with code, feel free do donate ETH at this address: `0xa1d283e77f8308559f62909526ccb2d9444d96fc`
 
