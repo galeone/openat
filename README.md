@@ -25,7 +25,7 @@ Every implemented market satisfies the contract with the [Market](https://github
 
 #### Market: available coins
 
-```
+```cpp
 // A call to `coins()` returns `std::map<std::string, coin_t>` where the key is the name of the coin
 // and the value is a `coin_t` type, which contains basic informations about the coin
 // like t's name, the symbol and it's status
@@ -40,7 +40,7 @@ for(const auto& pair : coins) {
 
 #### Market: available pairs and pair info
 
-```
+```cpp
 // Given the market variable `market`
 // market->info() returns a std::vector<market_info_t> where each entry of the
 // vector contains the information about any available pair in the market
@@ -54,7 +54,7 @@ for(const auto& info : pair_info) {
 
 You can specify the pair you're interested in, hence:
 
-```
+```cpp
 // information about the ETH/EUR pair
 auto info = market->info(currency_pair_t("eth", "eur");
 std::cout << "pair: " << info.pair << " " << "limits: " << info.limit << " fees: "
@@ -63,7 +63,7 @@ std::cout << "pair: " << info.pair << " " << "limits: " << info.limit << " fees:
 
 #### Market: ticker per pair
 
-```
+```cpp
 // given a certain pair, obtain the ticker information
 auto ticker = market->ticker(currency_pair_t("eth", "eur"));
 
@@ -77,7 +77,7 @@ std::cout << "ask:\n\price: " << ticker.ask.price << " amount: " << ticker.ask.a
 
 ##### Market: order book per pair
 
-```
+```cpp
 // a call to the `orderBook(pair)` returns a std::vector<ticker_t>
 auto order_book = market->orderBook(currency_pair_t("eth", "eur"));
 for(const auto& order : order_book) {
@@ -87,7 +87,7 @@ for(const auto& order : order_book) {
 
 ##### Market: balance per currency and global balance
 
-```
+```cpp
 // The method balance has 2 versions:
 // 1. `std::map<std::string, double> balance()` which returns the pair `symbol`,`balance`
 auto balances = market->balance();
@@ -102,7 +102,7 @@ std::cout << "BTC: " << btc << "\n";
 
 ##### Market: list of open and closed orders
 
-```
+```cpp
 // We can get the list of closed orders (a std::vector<order_t>) calling
 auto closed_orders = market->closedOrders();
 for(const auto order : closed_orders) {
@@ -139,7 +139,7 @@ for(const auto order : open_orders) {
 
 ##### Market: place and cancel order
 
-```
+```cpp
 // Given an open order, close it (use the txid to identify the order on the market)
 auto close_me = open_orders[0];
 market->close(close_me);
@@ -196,7 +196,7 @@ OpenAT contains a client for the [coinmarketcap.com](https://coinmarketcap.com) 
 
 The interface is easy and intuitive:
 
-```
+```cpp
 // ticker returns a vector of `cm_ticker_t`, where `cm` stands for cumulative
 // The struct it's easy, so no further explaination are required:
 /*
@@ -312,7 +312,7 @@ ctest -E ID
 
 Copy or clone the project into the `libs` folder, than add to your `CMakeLists.txt`:
 
-```
+```cmake
 # Build OpenAT
 set(OPENAT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/libs/openat")
 set(OPENAT_INCLUDE_DIR "${OPENAT_SOURCE_DIR}/include")
