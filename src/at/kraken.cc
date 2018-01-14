@@ -314,12 +314,14 @@ std::vector<ticker_t> Kraken::orderBook(currency_pair_t pair)
         auto ask = quotation_t{
             .price = std::stod(res["asks"][idx][0].get<std::string>()),
             .amount = std::stod(res["asks"][idx][1].get<std::string>()),
-            .time = res["asks"][idx][2].get<uint32_t>(),
+            .time =
+                static_cast<std::time_t>(res["asks"][idx][2].get<uint32_t>()),
         };
         auto bid = quotation_t{
             .price = std::stod(res["bids"][idx][0].get<std::string>()),
             .amount = std::stod(res["bids"][idx][1].get<std::string>()),
-            .time = res["bids"][idx][2].get<uint32_t>(),
+            .time =
+                static_cast<std::time_t>(res["bids"][idx][2].get<uint32_t>()),
         };
 
         ticker_t ticker;
