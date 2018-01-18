@@ -84,6 +84,34 @@ private:
     json _request(std::string method,
                   std::vector<std::pair<std::string, std::string>> params);
 
+    static void _throw_error_if_any(const json& res)
+    {
+        try {
+            Thrower::_throw_error_if_any(res);
+        }
+        catch (const response_error& e) {
+            // Kraken is shit and even when status code shoudl be 500
+            // it might return a status code 200 with a json error
+            // If the error is present thrower::_throw_err_if_any
+            // will throw a response error, even if the requrest failed
+            // not because of the malformed url request but because the
+            // server is busy, or unavailable.
+            //
+            // In this case a server error must be thrown, not a response error
+            auto message = std::string(e.std::exception::what());
+            auto found = message.find("EService:Unavailable");
+            if (found != std::string::npos) {
+                throw server_error(message);
+            }
+            found = message.find("Service:Busy");
+            if (found != std::string::npos) {
+                throw server_error(message);
+            }
+
+            throw e;
+        }
+    }
+
 public:
     Kraken() {}
     Kraken(std::string api_key, std::string api_secret)
@@ -148,7 +176,7 @@ public:
 
     /* This cancel the specified order idientified by order.txid */
     void cancel(order_t&) override;
-};
+};  // namespace at
 
 }  // end namespace at
 
