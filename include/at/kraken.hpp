@@ -22,6 +22,7 @@
 #include <cerrno>
 #include <chrono>
 #include <ctime>
+#include <iomanip>
 #include <limits>
 #include <sstream>
 
@@ -55,6 +56,53 @@ private:
         {"ETC", 0.3},   {"GNO", 0.03},  {"ICN", 2},     {"LTC", 0.1},
         {"MLN", 0.1},   {"XMR", 0.1},   {"XRP", 30},    {"XLM", 300},
         {"ZEC", 0.03},  {"USDT", 5}};
+
+    const std::map<currency_pair_t, int> _maxPrecision = {
+        {currency_pair_t("BCH", "XBT"), 6},
+        {currency_pair_t("BCH", "EUR"), 3},
+        {currency_pair_t("BCH", "USD"), 3},
+        {currency_pair_t("DASH", "XBT"), 6},
+        {currency_pair_t("DASH", "EUR"), 3},
+        {currency_pair_t("DASH", "USD"), 3},
+        {currency_pair_t("EOS", "XBT"), 6},
+        {currency_pair_t("EOS", "ETH"), 6},
+        {currency_pair_t("ETC", "XBT"), 6},
+        {currency_pair_t("ETC", "ETH"), 6},
+        {currency_pair_t("ETC", "EUR"), 4},
+        {currency_pair_t("ETC", "USD"), 4},
+        {currency_pair_t("ETH", "XBT"), 6},
+        {currency_pair_t("ETH", "CAD"), 3},
+        {currency_pair_t("ETH", "EUR"), 3},
+        {currency_pair_t("ETH", "JPY"), 1},
+        {currency_pair_t("ETH", "USD"), 3},
+        {currency_pair_t("GNO", "XBT"), 6},
+        {currency_pair_t("GNO", "ETH"), 6},
+        {currency_pair_t("ICN", "XBT"), 6},
+        {currency_pair_t("ICN", "ETH"), 6},
+        {currency_pair_t("LTC", "XBT"), 6},
+        {currency_pair_t("LTC", "EUR"), 4},
+        {currency_pair_t("LTC", "USD"), 4},
+        {currency_pair_t("MLN", "XBT"), 6},
+        {currency_pair_t("MLN", "ETH"), 6},
+        {currency_pair_t("REP", "XBT"), 6},
+        {currency_pair_t("REP", "ETH"), 6},
+        {currency_pair_t("REP", "EUR"), 4},
+        {currency_pair_t("USDT", "USD"), 4},
+        {currency_pair_t("XBT", "CAD"), 2},
+        {currency_pair_t("XBT", "EUR"), 2},
+        {currency_pair_t("XBT", "JPY"), 0},
+        {currency_pair_t("XBT", "USD"), 2},
+        {currency_pair_t("XDG", "XBT"), 8},
+        {currency_pair_t("XLM", "XBT"), 7},
+        {currency_pair_t("XMR", "XBT"), 6},
+        {currency_pair_t("XMR", "EUR"), 4},
+        {currency_pair_t("XMR", "USD"), 4},
+        {currency_pair_t("XRP", "XBT"), 6},
+        {currency_pair_t("XRP", "EUR"), 6},
+        {currency_pair_t("XRP", "USD"), 6},
+        {currency_pair_t("ZEC", "XBT"), 6},
+        {currency_pair_t("ZEC", "EUR"), 3},
+        {currency_pair_t("ZEC", "USD"), 3}};
 
     // Returns available symbols
     std::vector<std::string> _symbols();

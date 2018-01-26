@@ -410,7 +410,11 @@ void Kraken::place(order_t& order)
                 throw std::runtime_error(
                     "order.volume * order.price can't be <= 0");
             }
-            params.push_back({"price", std::to_string(order.price)});
+            ss.str("");
+            ss.clear();
+            ss << std::setprecision(_maxPrecision.at(order.pair))
+               << order.price;
+            params.push_back({"price", ss.str()});
             break;
         }
     }
