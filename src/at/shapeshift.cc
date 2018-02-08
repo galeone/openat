@@ -38,9 +38,8 @@ min_max_t Shapeshift::depositLimit(currency_pair_t pair)
     json res = req.get(url.str());
     _throw_error_if_any(res);
     // {"limit":"1.81514557","min":"0.000821","pair":"btc_eth"}
-    return min_max_t{
-        .min = std::stod(res.at("min").get<std::string>()),
-        .max = std::stod(res.at("limit").get<std::string>())};
+    return min_max_t{.min = std::stod(res.at("min").get<std::string>()),
+                     .max = std::stod(res.at("limit").get<std::string>())};
 }
 
 std::vector<exchange_info_t> Shapeshift::info()
@@ -58,14 +57,13 @@ std::vector<exchange_info_t> Shapeshift::info()
         try {
             markets.push_back(exchange_info_t{
                 .pair = pair,
-                .limit =
-                    min_max_t{.min = market.at("min").get<double>(),
-                                    .max = market.at("limit").get<double>()},
+                .limit = min_max_t{.min = market.at("min").get<double>(),
+                                   .max = market.at("limit").get<double>()},
                 .rate = std::stod(
                     market.at("rate").get<std::string>()),  // rate is a string
                 .miner_fee = market.at("minerFee").get<double>()});
         }
-        catch (const std::out_of_range&) {
+        catch (const json::out_of_range&) {
         }  // skip non complete rows
     }
     return markets;
@@ -85,11 +83,9 @@ exchange_info_t Shapeshift::info(currency_pair_t pair)
     // shapeshift API is inconsistent as hell
     return exchange_info_t{
         .pair = pair,
-        .limit =
-            min_max_t{
-                .min = market.at("minimum")
-                           .get<double>(),  // minumum instead of min
-                .max = market.at("limit").get<double>()},
+        .limit = min_max_t{.min = market.at("minimum")
+                                      .get<double>(),  // minumum instead of min
+                           .max = market.at("limit").get<double>()},
         .rate = market.at("rate").get<double>(),  // rate is no more a string
         .miner_fee = market.at("minerFee").get<double>()};
 }
