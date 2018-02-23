@@ -412,8 +412,16 @@ void Kraken::place(order_t& order)
             }
             ss.str("");
             ss.clear();
-            ss << std::setprecision(_maxPrecision.at(order.pair))
-               << order.price;
+            // hopefully a precision of 2 is not too much for the current
+            // pair. Kraken just give the precision for certain pairs
+            // but other pairs have no specification at all.
+            int precision = 2;
+            try {
+                precision = _maxPrecision.at(order.pair);
+            }
+            catch (const std::out_of_range&) {
+            }
+            ss << std::setprecision(precision) << order.price;
             params.push_back({"price", ss.str()});
             break;
         }
