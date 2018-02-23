@@ -86,11 +86,17 @@ void Fiat::_update()
     }
 }
 
-// rate returns the exchange rate of the fiat pair.
-// eg. pair(eur,usd) -> amount of usd to buy/sell eur
+// rate returns the exchange rate of the fiat pair
 double Fiat::rate(const currency_pair_t &pair)
 {
-    _update();
+    try {
+        _update();
+    }
+    catch (...) {
+        // if here  _eur_to_currency_rate was aready filled by
+        // the constructor, hence let's use the old values
+    }
+
     std::string base, quote;
     base = pair.first;
     quote = pair.second;
@@ -98,19 +104,15 @@ double Fiat::rate(const currency_pair_t &pair)
     toupper(base);
     toupper(quote);
 
-    // First convert eveything to EUR quotation, than change from
-    // base to quote
     if (base == "EUR") {
-        return _eur_to_currency_rate[quote];
+        return 1. / _eur_to_currency_rate[quote];
     }
 
     if (quote == "EUR") {
-        return 1. / _eur_to_currency_rate[base];
+        return _eur_to_currency_rate[base];
     }
 
-    // (1 / number of base for eur) * (number of quote for eur)
-    // number of quote for base
-    return _eur_to_currency_rate[quote] / _eur_to_currency_rate[base];
+    return _eur_to_currency_rate[base] / _eur_to_currency_rate[quote];
 }
 
 }  // namespace at
