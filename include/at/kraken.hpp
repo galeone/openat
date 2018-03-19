@@ -146,7 +146,7 @@ private:
             // server is busy, or unavailable.
             //
             // In this case a server error must be thrown, not a response error
-            auto message = std::string(e.std::exception::what());
+            auto message = std::string(e.what());
             auto found = message.find("EService:Unavailable");
             if (found != std::string::npos) {
                 throw server_error(message);
