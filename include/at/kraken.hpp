@@ -24,6 +24,7 @@
 #include <ctime>
 #include <iomanip>
 #include <limits>
+#include <mutex>
 #include <sstream>
 
 namespace at {
@@ -48,6 +49,8 @@ private:
     const std::string _api_key, _api_secret;
     std::string _otp;
     std::vector<std::string> _available_symbols;
+    std::mutex _mux;
+    unsigned long long int _request_counter = 0;
 
     const std::map<std::string, double> _minimumLimits = {
         // https://support.kraken.com/hc/en-us/articles/205893708-What-is-the-minimum-order-size-
@@ -119,7 +122,7 @@ private:
     currency_pair_t _str2pair(std::string str);
 
     // _nonce = [0prefix || timestamp]<width = 10> || [nanoseconds]<width = 9>
-    std::string _nonce() const;
+    std::string _nonce();
 
     // base64encode(
     //  hmac_sha512(path + sha256(nonce + postdata),

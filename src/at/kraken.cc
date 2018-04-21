@@ -18,8 +18,11 @@ namespace at {
 
 // private methods
 
-std::string Kraken::_nonce() const
+std::string Kraken::_nonce()
 {
+    // acquire lock for mutual exclusive access of _request_counter
+    std::unique_lock<std::mutex> lock(_mux);
+    ++_request_counter;
     std::ostringstream oss;
 
     timespec tp;
@@ -29,8 +32,9 @@ std::string Kraken::_nonce() const
     }
     else {
         // format output string
-        oss << std::setfill('0') << std::setw(10) << tp.tv_sec << std::setw(9)
-            << tp.tv_nsec;
+        oss << std::setfill('0') << std::setw(10)
+            << (tp.tv_sec + _request_counter) << std::setw(9)
+            << (tp.tv_nsec + _request_counter);
     }
     return oss.str();
 }
