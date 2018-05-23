@@ -20,9 +20,6 @@ namespace at {
 
 std::string Kraken::_nonce()
 {
-    // acquire lock for mutual exclusive access of _request_counter
-    std::unique_lock<std::mutex> lock(_mux);
-    ++_request_counter;
     std::ostringstream oss;
 
     timespec tp;
@@ -108,13 +105,18 @@ json Kraken::_request(std::string method,
     if (_api_key.empty() || _api_secret.empty()) {
         throw std::runtime_error("API KEY/SECRET required for private methods");
     }
+
+    // acquire lock for mutual exclusive access of _request_counter:
+    // Nonce counter should be incremented AFTER the server knows the current
+    // request. Hence the _request method that calls the _nonce methdo acquires
+    // the lock on the mutex and locks any other request until a response has
+    // not been received by the server
+    std::unique_lock<std::mutex> lock(_mux);
+    ++_request_counter;
     auto private_method = "private/" + method;
     auto path = "/" + _version + "/" + private_method;
     auto nonce = _nonce();
     params.push_back({"nonce", nonce});
-    if (_otp != "") {
-        params.push_back({"otp", _otp});
-    }
 
     std::list<std::string> headers;
     headers.push_back("API-Key: " + _api_key);
