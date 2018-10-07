@@ -36,7 +36,8 @@ namespace at {
  * */
 class CoinMarketCap : private Thrower {
 private:
-    const std::string _host = "https://api.coinmarketcap.com/v1/";
+    // const std::string _host = "https://api.coinmarketcap.com/v1/";
+    const std::string _host = "https://api.alternative.me/v1/";
     const std::string _reverse_host = "https://coinmarketcap.com/";
     std::map<std::string, std::string> _symbol_to_id;
 
