@@ -140,10 +140,10 @@ private:
             Thrower::_throw_error_if_any(res);
         }
         catch (const response_error& e) {
-            // Kraken is shit and even when status code shoudl be 500
+            // Kraken is shit and even when status code should be 500
             // it might return a status code 200 with a json error
             // If the error is present thrower::_throw_err_if_any
-            // will throw a response error, even if the requrest failed
+            // will throw a response error, even if the request failed
             // not because of the malformed url request but because the
             // server is busy, or unavailable.
             //
