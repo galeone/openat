@@ -40,7 +40,7 @@ cm_ticker_t CoinMarketCap::ticker(std::string currency_symbol)
     toupper(currency_symbol);
     auto id = _symbol_to_id.find(currency_symbol);
     currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
-    json res = req.get(_host + "ticker/" + currency_symbol)[0];
+    json res = req.get(_host + "ticker/" + currency_symbol + "/")[0];
     _throw_error_if_any(res);
     return res;
 }
