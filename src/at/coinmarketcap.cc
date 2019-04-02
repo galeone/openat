@@ -60,7 +60,7 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
     auto id = _symbol_to_id.find(currency_symbol);
     currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
     std::string page =
-        req.getHTML(_reverse_host + "currencies/" + currency_symbol);
+        req.getHTML(_reverse_host + "currencies/" + currency_symbol + "/");
 
     CDocument doc;
     doc.parse(page.c_str());
