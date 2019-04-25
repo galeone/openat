@@ -55,7 +55,10 @@ gm_data_t CoinMarketCap::global()
 
 std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
 {
-    Request req;
+    // Force HTTP 1
+    std::list<curlpp::OptionBase*> options = {
+        new curlpp::options::HttpVersion(CURL_HTTP_VERSION_1_0)};
+    Request req(options);
     toupper(currency_symbol);
     auto id = _symbol_to_id.find(currency_symbol);
     currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
@@ -78,14 +81,14 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
     for (size_t i = 0; i < rows.nodeNum(); ++i) {
         CNode row = rows.nodeAt(i);
         CSelection fields = row.find("td");
-        if (fields.nodeNum() != 7) {
-            throw std::runtime_error("Expected 6 columns, got " +
+        if (fields.nodeNum() != 9) {
+            throw std::runtime_error("CMC markets: expected 9 columns, got " +
                                      std::to_string(fields.nodeNum()));
         }
 
         // Skip markets not updated recently
-        // 6: updated
-        std::string updated_string = fields.nodeAt(6).text();
+        // 8: updated
+        std::string updated_string = fields.nodeAt(8).text();
         at::tolower(updated_string);
         if (updated_string != "recently") {
             continue;
@@ -116,6 +119,8 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
         // remove %
         percentage_string.pop_back();
         float percent_volume = std::stof(percentage_string);
+
+        // 6,7: category, feed type unused
 
         cm_market_t market{
             .name = name,
