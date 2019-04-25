@@ -34,16 +34,30 @@ namespace at {
 class Request {
 private:
     std::list<std::string> _headers;
+    std::list<curlpp::OptionBase*> _options;
     std::string _get(std::string url);
 
 public:
     Request() {}
     Request(std::list<std::string> headers) : _headers(headers) {}
+    Request(std::list<curlpp::OptionBase*> options) : _options(options) {}
+    Request(std::list<std::string> headers,
+            std::list<curlpp::OptionBase*> options)
+        : _headers(headers), _options(options)
+    {
+    }
 
     json get(std::string);
     std::string getHTML(std::string url);
     json post(std::string, json);
     json post(std::string, std::vector<std::pair<std::string, std::string>>);
+
+    ~Request()
+    {
+        for (auto ptr : _options) {
+            delete ptr;
+        }
+    }
 };
 
 }  // end namespace at

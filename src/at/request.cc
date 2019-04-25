@@ -32,6 +32,9 @@ std::string Request::_get(std::string url)
         req.setOpt(Url(url));
         req.setOpt(FollowLocation(true));
         req.setOpt(SslVersion(CURL_SSLVERSION_TLSv1_2));
+        for (auto opt : _options) {
+            req.setOpt(*opt);
+        }
 
         if (!_headers.empty()) {
             req.setOpt(HttpHeader(_headers));
@@ -63,6 +66,9 @@ json Request::post(std::string url, json params)
         req.setOpt(Url(url));
         req.setOpt(FollowLocation(true));
         req.setOpt(SslVersion(CURL_SSLVERSION_TLSv1_2));
+        for (auto opt : _options) {
+            req.setOpt(*opt);
+        }
 
         std::list<std::string> headers({"Content-Type: application/json"});
         if (!_headers.empty()) {
@@ -106,6 +112,9 @@ json Request::post(std::string url,
         req.setOpt(Url(url));
         req.setOpt(FollowLocation(true));
         req.setOpt(SslVersion(CURL_SSLVERSION_TLSv1_2));
+        for (auto opt : _options) {
+            req.setOpt(*opt);
+        }
 
         std::list<std::string> headers(
             {"Content-Type: application/x-www-form-urlencoded"});
