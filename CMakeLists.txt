@@ -26,11 +26,6 @@ endif()
 # Build and setup the correct cmake variables for third-party libraries
 #
 
-# Build Curlpp
-set(CURLPP "${PROJECT_SOURCE_DIR}/libs/curlpp")
-set(CURLPP_INCLUDE_DIR "${CURLPP}/include")
-add_subdirectory(${CURLPP})
-
 # Rapidxml is a header-only library
 set(RAPIDXML "${PROJECT_SOURCE_DIR}/libs/rapidxml")
 set(RAPIDXML_INCLUDE_DIR "${RAPIDXML}")

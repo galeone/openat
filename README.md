@@ -278,7 +278,16 @@ sudo make install
 # `libfind_process(Gumbo)`
 # from libs/gumbo/query/cmake/FindGumbo.cmake
 cd -
-# i
+# Install curlpp, or with yay -S curlpp
+# or using the submodule
+cd libs/curlpp
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+cd -
+# build openat
 mkdir build
 cd build
 cmake ..
