@@ -55,10 +55,7 @@ gm_data_t CoinMarketCap::global()
 
 std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
 {
-    // Force HTTP 1
-    std::list<curlpp::OptionBase*> options = {
-        new curlpp::options::HttpVersion(CURL_HTTP_VERSION_1_0)};
-    Request req(options);
+    Request req;
     toupper(currency_symbol);
     auto id = _symbol_to_id.find(currency_symbol);
     currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
