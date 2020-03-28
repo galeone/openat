@@ -16,6 +16,7 @@
 #define AT_REQUEST_H_
 
 #include <curl/curl.h>
+
 #include <at/types.hpp>
 #include <cstring>
 #include <curlpp/Easy.hpp>
@@ -23,7 +24,7 @@
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
 #include <iostream>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <utility>

@@ -15,8 +15,9 @@
 #ifndef AT_COINMARKETCAP_H_
 #define AT_COINMARKETCAP_H_
 
-#include <query/src/Document.h>
-#include <query/src/Node.h>
+#include <gq/Document.h>
+#include <gq/Node.h>
+
 #include <at/exceptions.hpp>
 #include <at/market.hpp>
 #include <at/types.hpp>

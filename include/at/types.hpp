@@ -15,8 +15,9 @@
 #ifndef AT_TYPE_H_
 #define AT_TYPE_H_
 
+#include <ctime>
 #include <exception>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <string>

@@ -17,8 +17,8 @@
 
 #include <at/request.hpp>
 #include <at/types.hpp>
-#include <json.hpp>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <utility>
 

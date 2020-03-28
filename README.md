@@ -263,9 +263,22 @@ Clone the repository and make sure to clone the submodules too:
 git clone --recursive https://github.com/galeone/openat
 ```
 
-### Building on UNIX
+### Building on (Arch)linux
 
 ```
+# Install the required dependencies
+
+sudo pacman -S spdlog nlohmann-json gumbo-parser sqlite
+# install gumbo query to your system
+cd libs/gumbo/query/build
+cmake ..
+make
+sudo make install
+# if there are problem with the static library, remove the last line
+# `libfind_process(Gumbo)`
+# from libs/gumbo/query/cmake/FindGumbo.cmake
+cd -
+# i
 mkdir build
 cd build
 cmake ..
@@ -274,16 +287,9 @@ CC=clang CXX=clang++ make
 
 ### Building on macOS
 
-As of october 2017, the version of clang shipped with XCode 9 does not fully
-support C++17. You will need to install gcc from HomeBrew; it will be available
-as `gcc-7` and `g++-7`. Note that the gcc included in XCode is just a gcc 
-frontend with an LLVM (clang) backend; it will not be able to build `at`.
-```
-brew install gcc
-```
-
 Install the needed dependencies and remember to link them:
 ```
+brew install gcc
 brew install openssl sqlite
 brew link sqlite --force
 ```
@@ -339,14 +345,14 @@ target_link_libraries(project_name LINK_PUBLIC
 
 The best way to contribute to OpenAT is via pull request and issues, here on GitHub.
 
-There are a lot of things to do to improve OpenAT (and [openatd:  OpenAT Daemon](https://github.com/galeone/openatd/) too!):
+There are a lot of things to do to improve OpenAT (and [openatd: OpenAT Daemon](https://github.com/galeone/openatd/) too!):
 
 1. **Add implementations of the Market interface**: this is the most important part. More market are implemented and more OpenAT can be useful.
 With more implementation with can easily write trading bot for arbitrage in the easiest way ever.
 2. **Add data sources**: coinmarketcap is a good data source and it works well. But we can try to make OpenAT smarter, collecting any other data that talks about crypto currencies (just think, train a ML model with the stream of collected tweets and news feed... we can do sentiment analysis and many other cool things: a lot of (high quality) data is everything.
 3. **Improve the documentation**: at the time of writing, the only documentation is the README and the comments in the header files. We can do better.
-4. **Unit test**: test the server response it's something hard (especially when you work with idiotic APIs like the shapeshift ones, where a field change it's type from request to reuest): we have to create a mock server and test everything.
-5. **OMG you're using double and not integers everywere!**: yes you're right. But since OpenAT basically collects data and send request to API that accepts JSON, using doubles and integer changes nothing (you have to convert the data to a string in every case). But if you want to change OpenAT making it use integer and the information about the number of meaningful digits you're welcome.
+4. **Unit test**: test the server response it's something hard (especially when you work with idiotic APIs like the shapeshift ones, where a field change it's type from request to request): we have to create a mock server and test everything.
+5. **OMG you're using double and not integers everywhere!**: yes you're right. But since OpenAT basically collects data and send request to API that accepts JSON, using doubles and integer changes nothing (you have to convert the data to a string in every case). But if you want to change OpenAT making it use integer and the information about the number of meaningful digits you're welcome.
 
 Also, if you want to donate instead of contributing with code, feel free do donate ETH at this address: `0xa1d283e77f8308559f62909526ccb2d9444d96fc`
 
