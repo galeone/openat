@@ -67,7 +67,7 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
     CSelection table = doc.find("#markets-table tbody");
     if (table.nodeNum() == 0) {
         throw std::runtime_error(
-            "Unable to find table with ID markets-table, on " + _host +
+            "Unable to find table with ID markets-table, on " + _reverse_host +
             "currencies/" + currency_symbol);
     }
 
