@@ -57,8 +57,16 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
 {
     Request req;
     toupper(currency_symbol);
-    auto id = _symbol_to_id.find(currency_symbol);
-    currency_symbol = id != _symbol_to_id.end() ? id->second : currency_symbol;
+
+    // Some currency needs a different treatment (yeah...)
+    if (currency_symbol == "XRP") {
+        currency_symbol = "xrp";
+    }
+    else {
+        auto id = _symbol_to_id.find(currency_symbol);
+        currency_symbol =
+            id != _symbol_to_id.end() ? id->second : currency_symbol;
+    }
     std::string page = req.getHTML(_reverse_host + "currencies/" +
                                    currency_symbol + "/markets/");
 
@@ -112,6 +120,11 @@ std::vector<cm_market_t> CoinMarketCap::markets(std::string currency_symbol)
         std::string usd_volume_string =
             _to_number_string(fields.nodeAt(3).find("div").nodeAt(0).text());
 
+        // if there is a * or a ? the volume is unknown or an outlier, thus ignore.
+        if (usd_volume_string.find("?") != std::string::npos ||
+            usd_volume_string.find('*') != std::string::npos) {
+            continue;
+        }
         long long int day_volume_usd = std::stoull(usd_volume_string);
 
         // 4: prices <tr>$12,12,12.xx</tr>
