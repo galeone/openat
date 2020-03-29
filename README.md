@@ -1,5 +1,4 @@
 # OpenAT: Open Source Algorithmic Trading Library
-[![Build Status](https://travis-ci.org/galeone/openat.svg?branch=master)](https://travis-ci.org/galeone/openat)
 
 OpenAT provides an easy to use C++ interface for working with (crypto-)currencies markets and exchanges.
 
@@ -230,8 +229,7 @@ typedef struct {
     std::string name;
     currency_pair_t pair;
     long long int day_volume_usd;
-    double day_volume_btc;
-    double price_usd, price_btc;
+    double price_usd;
     float percent_volume;
     std::time_t last_updated;
 } cm_market_t;

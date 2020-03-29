@@ -493,8 +493,7 @@ typedef struct {
     std::string name;
     currency_pair_t pair;
     long long int day_volume_usd;
-    double day_volume_btc;
-    double price_usd, price_btc;
+    double price_usd;
     float percent_volume;
     std::time_t last_updated;
 } cm_market_t;
@@ -504,8 +503,6 @@ inline void to_json(json& j, const cm_market_t& t)
     j = json{{"name", t.name},
              {"pair", t.pair},
              {"day_volume_usd", t.day_volume_usd},
-             {"day_volume_btc", t.day_volume_btc},
-             {"price_btc", t.price_btc},
              {"price_usd", t.price_usd},
              {"percent_volume", t.percent_volume},
              {"last_updated", t.last_updated}};
@@ -517,8 +514,6 @@ inline void from_json(const json& j, cm_market_t& t)
     t.pair = j.at("pair").get<currency_pair_t>();
     t.day_volume_usd =
         static_cast<long long int>(j.at("day_volume_usd").get<double>());
-    t.day_volume_btc = j.at("day_volume_btc").get<double>();
-    t.price_btc = j.at("price").get<double>();
     t.percent_volume = j.at("percent_volume").get<float>();
     t.last_updated = j.at("last_updated").get<std::time_t>();
 }
