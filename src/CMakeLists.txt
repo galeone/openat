@@ -14,6 +14,8 @@ find_package(GumboQuery REQUIRED)
 find_package(curlpp REQUIRED)
 # JSON
 find_package(nlohmann_json REQUIRED)
+# Threads
+find_package(Threads REQUIRED)
 
 # Executable at is the compilation of every .cc in this folder
 # and its subfolders
